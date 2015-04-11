@@ -1,0 +1,8 @@
+MPXCOMMAND=touch	# essentially a no-op
+MPINPUTS=.
+TEXFONTS=.
+MPMEMS=.
+MPPOOL=.
+export MPXCOMMAND MPINPUTS TEXFONTS MPMEMS MPPOOL
+
+./etrapmp $*

@@ -1,0 +1,48 @@
+AB	AvantGarde-Demi			rpagd
+AI	AvantGarde-BookOblique		rpagko
+AR	AvantGarde-Book			rpagk
+AX	AvantGarde-DemiOblique		rpagdo
+B	Times-Bold			rptmb
+BI	Times-BoldItalic		rptmbi
+CB	Courier-Bold			rpcrb
+CI	Courier-Oblique			rpcrro
+CO	Courier				rpcrr
+CW	Courier				rpcrr
+CX	Courier-BoldOblique		rpcrbo
+CaslonI	CaslonFiveForty-Italic
+CaslonR	CaslonFiveForty-Roman
+GR	Symbol				rpsyr
+H	Helvetica			rphvr
+HB	Helvetica-Bold			rphvb
+HI	Helvetica-Oblique		rphvro
+HX	Helvetica-BoldOblique		rphvbo
+Hb	Helvetica-Narrow-Bold		rphvbrn
+Hi	Helvetica-Narrow-Oblique	rphvron
+Hr	Helvetica-Narrow		rphvrrn
+Hx	Helvetica-Narrow-BoldOblique	rphvbon
+I	Times-Italic			rptmri
+KB	Bookman-Demi			rpbkd
+KI	Bookman-LightItalic		rpbkli
+KR	Bookman-Light			rpbkl
+KX	Bookman-DemiItalic		rpbkdi
+MU	Sonata
+NB	NewCenturySchlbk-Bold		rpncb
+NI	NewCenturySchlbk-Italic		rpncri
+NR	NewCenturySchlbk-Roman		rpncr
+NX	NewCenturySchlbk-BoldItalic	rpncbi
+PA	Palatino-Roman			rpplr
+PB	Palatino-Bold			rpplb
+PI	Palatino-Italic			rpplri
+PX	Palatino-BoldItalic		rpplbi
+R	Times-Roman			rptmr
+S	Symbol				rpsyr
+S1	Times-Roman			rptmr
+Sonata	Sonata
+UnivMath1	Universal-MathOne	M1
+UnivMath2	Universal-MathTwo	M2
+UnivMath3	Universal-MathThree	M3
+UnivMath4	Universal-MathFour	M4
+UnivMath5	Universal-MathFive	M5
+UnivMath6	Universal-MathSix	M6
+ZD	ZapfDingbats			rpzdr
+ZI	ZapfChancery-MediumItalic	rpzcmi

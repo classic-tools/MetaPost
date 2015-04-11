@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# PATH is for echo, cat, rm, mv, as well as troff, eqn
+# MPLIB is where newer, mptotr, and dmp are installed
+PATH=/bin:/usr/bin:/usr/local/bin
+MPLIB=/usr/lib/mp/bin
+DOTR=${TROFF:-'eqn -d\$\$ | troff -Tpost'}
+
+#####################################################
+# Everything below here should seldom need changing #
+#####################################################
+ERRLOG=mpxerr.log		# file for an error log, if necessary
+TRERR=mpxerr			# file for erroneous troff input, if any
+OUTERR=mpxerr.t			# file for troublesome troff output, if any
+MPFILE=$1			# input file
+MPXFILE=$2			# output file
+NL='
+'
+
+trap "rm -f mpx$$.* $ERRLOG; exit 4" 1 2 15
+
+
+if $MPLIB/newer $MPFILE $MPXFILE
+then
+    $MPLIB/mptotr $MPFILE >mpx$$.i 2>$ERRLOG
+    case $? in
+    0)	;;
+    *)	echo "$NL"'Command failed: ' $MPLIB/mptotr $MPFILE
+	cat $ERRLOG
+	rm -f mpx$$.i
+	exit 1
+	;;
+    esac
+
+    cat mpx$$.i | eval $DOTR >mpx$$.t
+    case $? in
+    0)	;;
+    *)	mv -f mpx$$.i $TRERR
+	echo "$NL"'Command failed:' cat $TRERR '|' $DOTR
+	rm -f mpx$$.t
+	exit 2
+	;;
+    esac
+
+    $MPLIB/dmp mpx$$.t $MPXFILE 2>$ERRlOG
+    case $? in
+    0)	;;
+    *)  mv -f mpx$$.t $OUTERR
+	mv -f mpx$$.i $TRERR
+	echo "$NL"'Command failed:' $MPLIB/dmp $OUTERR $MPXFILE
+	cat $ERRLOG
+	rm -f mpx$$.*
+	exit 3
+	;;
+    esac
+
+    rm -f $ERRLOG mpx$$.*
+fi

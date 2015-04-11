@@ -1,0 +1,62 @@
+The following AT&T software is hereby put into the public domain:
+
+    The MetaPost system, including the interpreter, mp,
+    and support programs mptotex, dvitomp, mptotr, and dmp
+
+This does not constitute a precedent to be applied to any other AT&T
+copyright software.
+
+AT&T relinquishes all intellectual property rights to this code, both
+source and binary form and permission is granted for anyone to use,
+duplicate, modify and redistribute it.
+
+AT&T provides absolutely NO WARRENTEE OF ANY KIND with respect to this
+software.  The entire risk as to the quality and performance of this
+software is with the
+user.
+
+IN NO EVENT WILL AT&T BE LIABLE TO ANYONE FOR ANY DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE, INCLUDING, WITHOUT
+LIMITATION, DAMAGES RESULTING FROM LOST DATA OR LOST PROFITS,
+OR FOR ANY SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES.
+
+THIS PACKAGE INCLUDES:
+
+global header files site.h and defaults.h,
+
+source files mp/mp.web, mp/mp.ch, mp/mp.h mp/mpext.c, mp/mpmath.c
+for the MetaPost interpreter,
+
+source files mpware/mptotex.c, mpware/dvitomp.web, mpware/dvitomp.ch,
+mpware/dvimpext.c, mpware/mpware.h for TeX handling programs mptotex and 
+dvitomp,
+
+source files mpware/mptotr.c mpware/dmp.c for troff handling programs
+mptotr and dmp,
+
+shell scripts and source files mpware/makempx, mpware/newer.c, mpware/troffmpx
+for TeX and troff handling
+
+support files mp/convert, mp/mp.def, mpware/convert, mpware/mpware.def
+for PASCAL-to-C conversion,
+
+source files mp/mathtest.c, mp/pmath.c, mp/time.c, mp/test_mpd.h
+for the test program timemath that can be used to decide how to set FIXPT
+in site.h,
+
+trap test files mpware/testex.err, mpware/testex.mp, mpware/testex.tex,
+mp/trapmp, mp/ini_to_trap, and mp/trapdir/*,
+
+Makefiles ./Makefile, mp/Makefile, mpware/Makefile,
+
+font mapping table mplib/psfonts.map,
+
+files mplib/trfonts.map, mplib/trchars.adj, mplib/charlib for troff font
+mapping and special characters,
+
+MetaPost macro files mplib/*.mp and TeX macro file mplib/mproof.tex,
+
+input files mplib/mpintro.tex, mplib/mpintro.bib, mplib/examples.mp
+for a sample document,
+
+and other documentation files doc/*

@@ -1,0 +1,19 @@
+% To produce proof sheets from MetaPost output:
+% tex mproof <MetaPost output file names>
+
+\input epsf
+\font\textt=cmtex10 \textt
+\def\okbreak{\vfil\penalty2000\vfilneg}
+
+% Make sure the termination conditions work whether or not there
+% is a space after the last output file name.
+\def\endit{\\}
+\def\munch#1 {\def\next{#1}\ifx\next\endit\endit
+  \else#1$$\epsfbox{#1}$$\par\okbreak\fi\munch}
+
+\def\\{\let\munch=\relax\def\\{}}
+
+\everypar{\everypar{}\munchline}
+
+\obeylines\def\munchline#1
+{\catcode`\^^M=5 \munch#1\\ \vfill\end}%

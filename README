@@ -1,0 +1,178 @@
+The following AT&T software is hereby put into the public domain:
+
+    The MetaPost system, including the interpreter, mp,
+    and support programs mptotex, dvitomp, mptotr, and dmp
+
+This does not constitute a precedent to be applied to any other AT&T
+copyright software.
+
+AT&T relinquishes all intellectual property rights to this code, both
+source and binary form and permission is granted for anyone to use,
+duplicate, modify and redistribute it.
+
+AT&T provides absolutely NO WARRENTEE OF ANY KIND with respect to this
+software.  The entire risk as to the quality and performance of this
+software is with the
+user.
+
+IN NO EVENT WILL AT&T BE LIABLE TO ANYONE FOR ANY DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE, INCLUDING, WITHOUT
+LIMITATION, DAMAGES RESULTING FROM LOST DATA OR LOST PROFITS,
+OR FOR ANY SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES.
+
+See ./DISCLAIMER for a listing of the package contents.
+-----------------------------------------------------------------------
+
+
+This file describes the installation process for the MetaPost system.
+The source files are set up with the web2c version of TeX which is available
+by anonymous ftp from the machine labrea.stanford.edu and/or other standard
+sites.  The only parts of the web2c distribution that you really need are the
+following:
+1. An installed executable for TeX with all the .tfm files and everything
+   you need to actually run TeX.
+2. The actual PASCAL-to-C conversion programs in web2c subdirectory
+3. An executable version of tangle (probably in the web subdirectory)
+4. Executable versions of tftopl and pltotf from the texware subdirectory
+   (used only for the test suite).
+
+Some support is required in the dvi-to-PostScript program in order to take
+full advantage of MetaPost's ability to include typeset text in figures.
+Rokicki's dvips is one of the few drivers that has this support; it is
+also available from labrea.stanford.edu and/or other standard sites.
+
+The main source files for MetaPost are in ./mp; auxiliary programs
+that process included TeX commands are contained in ./mpware; standard
+macro files and such are in ./mplib.  The ./mp directory actually
+contains code for two versions of MetaPost: virmp requires a binary file
+giving standard definitions; inimp is a little larger and is capable of
+writing such ".mem" files.  This distribution has been set up so that you
+can get by with just inimp.  If you do this, the executable should be given
+the standard name "mp".  Inimp expects to preload an existing ".mem" file
+unless it is invoked with the "-I" switch.  (See the man page.)
+
+When inimp or virmp is processing an input file that contains TeX commands,
+they depend on a shell script mpware/makempx to create an auxiliary input file
+that gives corresponding MetaPost picture expressions.  This script uses
+mpware/mptotex to create TeX input and uses a program mpware/dvitomp to
+postprocess the TeX output.
+
+A number of optional files are needed only for troff support:
+There is another shell script mpware/troffmpx that handles input files
+with imbeded troff commands.  It runs programs mpware/mptotr and mpware/dmp
+to generate a troff input file and convert the troff output into MetaPost.
+The dmp translator reads data files mplib/trfonts.map and mplib/trchar.adj.
+The former handles the translation between troff names and tfm file names,
+while the latter gives character positioning adjustments.  There is also
+a directory mplib/charlib containing MetaPost programs for characters used
+in troff and not appearing in standard PostScript fonts.
+
+Like its ancestor METAFONT, MetaPost is written in the web language.  Anyone
+who is not familiar with the mechanics of web programs should see the
+documentation that comes with the TeX distribution.  That distribution
+contains a directory called "web2c" with Tim Morgan's programs for
+automatically translating web programs into C.  It is a good idea to
+look at the documentation for web2c before installing MetaPost.  This
+distribution does not use the automatic `configure' script found recent
+versions of web2c.
+
+The source files expect the web2c directory to have four programs: fixwrites,
+regfix, splitup, and web2c.  Each directory that contains web programs
+contains a shell script "convert" that invokes the four translation
+programs.  It also refers to a .h file and a ".defines" file that tells
+how to treat certain identifiers in the Pascal programs.
+
+The ultimate source for MetaPost is mp/mp.web.  System-dependent changes
+go in mp/mp.ch.  This is basically a diff file where changes are denoted
+                   @x <old text> @y <new text> @z
+There are also a number of source files necessary for Pascal-to-C conversion.
+The driver file mp/convert uses identifier definitions in mp/mp.def.
+The translated C files use definitions in mp/mp.h and external routines
+in mp/mpext.c and mp/mpmath.c.  C program files mp0.c through mp9.c and
+include files mpd.h and coerce.h are generated automatically by mp/convert.
+
+
+                            Installation
+
+0. Some parts of the code in mp/mp.web indexed under `system dependencies'.
+   This distribution should contain everything necessary to make these
+   parts of the program work on UNIX systems, but this is a good place
+   to look if something goes wrong.
+1. If you don't have tangle version 4.0 or higher, get a more recent TeX
+   distribution.
+2. Find the directory in the TeX distribution that contains executable
+   versions of fixwrites, regfix, splitup, and web2c.  The convert scripts
+   in mp and mpware assume that this directory is named web2c and is a
+   sibling of mp and mpware.  Make a symbolic link if necessary to achieve
+   this.  It is also wise to arrange for a sibling directory web containing
+   an executable version of tangle, and a sibling directory texware containing
+   executables for tftopl and pltotf.
+3. Edit ./site.h and ./Makefile to set up your local paths, compiler, etc.
+   Be sure to fix the directory names for `make install' if you want to
+   use that feature.  (If your system already has a program named `mp', you
+   will have to change mpname in ./Makefile.  Suggested alternative: `mpost'.)
+   If you have successfully compiled TeX and METAFONT from the WEB2C sources,
+   most of the information can be copied from there:
+   A. TEXFONTS, MFINPUTS in	   See ./site.h or lib/site.h in your WEB2C
+      ./site.h			   distribution.
+   B. MetaPost-specific paths and  Read the comments in ./site.h.
+      flags in ./site.h
+   C. REGFIX, NONASCII, EDITOR	   See WEB2C:site.h or WEB2C:lib/site.h
+      in ./site.h
+   D. schar, integer in ./site.h   See WEB2C:site.h or WEB2C:lib/config.h
+   E. SIGNAL_HANDLER_RETURN_TYPE   See WEB2C:site.h or WEB2C:lib/c-auto.h
+      in ./site.h
+   F. BSD, SYSV, POSIX_SOURCE,	   See WEB2C:site.h or read the comments
+      ANSI, SIXTEENBIT in ./site.h in ./site.h and decide
+   G. CC, OPT, LDFLAGS, install	   Installation directories should agree
+      directories in ./Makefile    with paths in ./site.h as explained in
+				   the comments in ./Makefile
+4. Edit mpware/makempx and mpware/troffmpx to fix MPLIB and PATH as explained
+   in the comments at the top of those files.   If you have not set up web
+   and texware directories as explained in step 2, you will need to edit
+   mp/Makefile and mpware/Makefile to fix TANGLE, TFTOPL, and PLTOTF.
+5. [You can skip this step if you are using Rockiki's dvips.]
+   Edit mplib/psfonts.map to give the correct tfm file names for builtin
+   PostScript fonts.  Each line in mplib/psfonts.map is of the following form:
+   TeX-name (without .tfm extension) <spaces> PostScript name [optional junk]
+   Fonts not listed in this table are assumed to have PostScript names that
+   match their TeX names.
+      If you want MetaPost to work with troff any changes to the first column
+   of mplib/psfonts.map will have to be reflected in the third column of
+   the mplib/trfonts.map table.  (Columns in this table are separated by
+   one or more tabs).  The first column is the troff name, the second column
+   is the PostScript name and the third is the tfm name without the directory
+   or .tfm suffix.  When there is no entry in the third column, the second
+   column is used.
+6. Run the `trap' test by making `run-triptrap' in the top-level directory.
+   It is unnecessary (but harmless) to make `triptrap' first.  The trap test
+   includes a series of diff commands that compare the results with what is
+   expected.  It is normal to have some differences since  many of the output
+   files contain a line that gives the date and time.  Certain other differences
+   are allowed as explained in mp/trapdir/README.  Don't bother to make
+   `clean-triptrap'--it is no longer necessary.
+7. Type `make' (in the top-level directory) to make the working versions of
+   every program in this hierarchy.  This also makes the plain.mem and
+   mfplain.mem.  (These are analogous to METAFONT's plain.base).  It is normal
+   to get one warning message from the C compiler about an unreached statement.
+8. `make install' to do the obvious.  If you don't want troff support, make
+   `tex-install' instead.
+9. `make clean' if you intend to compile the programs on another
+   architecture.  Since the .c files are intended to be portable across
+   architectures, they are not removed by this.
+10.`make veryclean' when you're all done.  This removes everything that
+    was not in the original distribution (and more besides).
+11. Install the man page doc/mp.1 where appropriate.  If in Step 2, you
+    changed mpname in ./Makefile or if you changed MPINPUTS, MPPOOL, MPMEM,
+    MPXCOMMAND, or TROFFMPX in ./site.h, the man page will need updating.
+    Most likely, this will mean replacing all occurrences of `/usr/lib/mp'
+    with something else.
+12. Make sure the complete system works.  `cd doc; mp manfig' should produce
+    about 50 output files manfig.0 ... manfig.411.  Then mpman.dvi can be
+    printed in the usual fashion and dvips should be able to merge in the
+    figures.  If you have troff support, that can be tested with doc/figs.mp
+    and doc/demo.ms. Then `cd doc; mp -T figs' produces figs.1, and
+    `troff -ms demo.ms' produces troff output that refers to figs.1 and
+    can be printed in the usual fashion.
+
+
