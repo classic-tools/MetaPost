@@ -1,4 +1,11 @@
 ----------------------------------------------------------------------
+Version 0.641:
+----------------------------------------------------------------------
+The only change was to fix the code for transforming a picture that
+contains a filldraw.  Version 0.64 introduced a bug that caused an
+inappropriate memory reference in that case.
+
+----------------------------------------------------------------------
 What is new in Version 0.64:
 ----------------------------------------------------------------------
 1. A new primitive command  closefrom filename  closes a readfrom file

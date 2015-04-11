@@ -116,7 +116,7 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner=='This is MetaPost, Version 0.64' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.641' {printed when \MP\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -17889,7 +17889,7 @@ if pen_p(q)<>null then
   begin sx:=tx; sy:=ty;
   tx:=0; ty:=0;@/
   do_pen_trans(pen_p(q));
-  if (dash_p(q)<>null) then
+  if ((type(q)=stroked_code)and(dash_p(q)<>null)) then
     dash_scale(q):=take_scaled(dash_scale(q),sqdet);
   if not pen_is_elliptical(pen_p(q)) then
     if sgndet<0 then
