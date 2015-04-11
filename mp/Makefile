@@ -17,8 +17,8 @@ PLTOTF=../texware/pltotf
 #########################################################
 
 OBJS= mp0.o mp1.o mp2.o mp3.o mp4.o mp5.o mp6.o mp7.o mp8.o mp9.o
-IOBJS=mpext.o mpmath.o inimp.o $(OBJS)
-VOBJS=mpext.o mpmath.o imp.o $(OBJS)
+IOBJS=mpext.o mpmath.o pathexp.o inimp.o $(OBJS)
+VOBJS=mpext.o mpmath.o pathexp.o imp.o $(OBJS)
 
 
 
@@ -159,7 +159,7 @@ mfplain.mem:	inimp
 
 
 clean:
-		rm -f *mp*.o *mpext.o fix.o core
+		rm -f *mp*.o mpext.o pathexp.o  fix.o core
 		rm -f trap.* trapin.log trapf.tfm fix inimp virmp etrapmp
 		rm -f time.o mpmath.o mathtest.o timemath pmath.o cmath.*
 		rm -f mtrap.* writeo writeo.2 *.mem

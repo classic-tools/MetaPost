@@ -43,9 +43,9 @@
 % Change banner string
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
-@d banner=='% Written by DVItoMP, Version 0.60'
+@d banner=='% Written by DVItoMP, Version 0.63'
 @y
-@d banner=='% Written by DVItoMP, C Version 0.60'
+@d banner=='% Written by DVItoMP, C Version 0.63'
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

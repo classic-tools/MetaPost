@@ -47,9 +47,9 @@
 % [1.2] banner line
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
-@d banner=='This is MetaPost, Version 0.62' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.63' {printed when \MP\ starts}
 @y
-@d banner=='This is MetaPost, C Version 0.62' {printed when \MP\ starts}
+@d banner=='This is MetaPost, C Version 0.63' {printed when \MP\ starts}
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1000,13 +1000,14 @@ most recently opened, if it is possible to do this in a \PASCAL\ program.
 @^system dependencies@>
 
 This routine might be called after string memory has overflowed, hence
-we dare not use `|str_room|'.
+we check for this before calling `|str_room|'.
 
 @p function make_name_string:str_number;
 var @!k:1..file_name_size; {index into |name_of_file|}
-begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings) then
+begin if str_overflowed then
   make_name_string:="?"
-else  begin for k:=1 to name_length do append_char(xord[name_of_file[k]]);
+else  begin str_room(name_length);
+  for k:=1 to name_length do append_char(xord[name_of_file[k]]);
   make_name_string:=make_string;
   end;
 end;
@@ -1031,13 +1032,14 @@ k:=1;
 while (k<file_name_size) and (xord[real_name_of_file[k]]<>" ") do
     incr(k);
 name_length:=k-1; {the real |name_length|}
-if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings) then
+if str_overflowed then
   make_name_string:="?"
 else  begin
   if (xord[real_name_of_file[1]]=".") and (xord[real_name_of_file[2]]="/") then
     kstart:=3
   else
     kstart:=1;
+  str_room(name_length-kstart-1);
   for k:=kstart to name_length do append_char(xord[real_name_of_file[k]]);
   make_name_string:=make_string;
   end;

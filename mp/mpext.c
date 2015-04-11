@@ -452,6 +452,8 @@ integer *minutes, *day, *month, *year;
  The following is a modified version of cmf/MFlib/paths.c
  **********************************************************/
 
+extern void pathexpand();	/* defined in pathexp.c */
+
 #undef	close			/* We're going to use the Unix close call */
 
 /*
@@ -545,6 +547,7 @@ void path_buildname(filename, buffername, cpp)
     char **cpp;
 {
     register char *p, *realname;
+    int dirlen;
     
     realname = buffername;
     if ((p = *cpp) != NULL) {
@@ -558,6 +561,7 @@ void path_buildname(filename, buffername, cpp)
 	*realname++ = '/';	/* separate the area from the name to follow */
     }
     /* now append filename to buffername... */
+    dirlen = realname - buffername;
     p = filename;
     if (*p == 0) p++;
     while (*p != ' ' && *p != 0) {
@@ -568,6 +572,7 @@ void path_buildname(filename, buffername, cpp)
 	*realname++ = *p++;
     }
     *realname = '\0';
+    pathexpand(buffername, dirlen, FILENAMESIZE);	/* expand "//" */
 }
 
 /*

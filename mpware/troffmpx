@@ -42,7 +42,7 @@ then
 	;;
     esac
 
-    $MPLIB/dmp mpx$$.t $MPXFILE 2>$ERRlOG
+    $MPLIB/dmp mpx$$.t $MPXFILE 2>$ERRLOG
     case $? in
     0)	;;
     *)  mv -f mpx$$.t $OUTERR

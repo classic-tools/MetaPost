@@ -91,6 +91,11 @@ The translated C files use definitions in mp/mp.h and external routines
 in mp/mpext.c and mp/mpmath.c.  C program files mp0.c through mp9.c and
 include files mpd.h and coerce.h are generated automatically by mp/convert.
 
+Bug reports are welcome, but the author does not make any specific promises
+to fix them.
+
+  John Hobby
+  hobby@research.att.com
 
                             Installation
 

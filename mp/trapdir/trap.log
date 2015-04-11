@@ -1,4 +1,4 @@
-This is MetaPost, C Version 0.62 (preloaded mem=trap 95.1.3)  3 JAN 1995 13:20
+This is MetaPost, C Version 0.63 (preloaded mem=trap 95.4.5)  5 APR 1995 06:18
 ** &trap  trap
 (trap.mp
 {if}
@@ -1619,7 +1619,7 @@ End edges
 {(unknown picture e3)=(picture)}
 {showstats}
 Memory usage 1178&115 (2344 still untouched)
-String usage 22&84 (1246&9184 now untouched)
+String usage 22&84 (1244&9178 now untouched)
 {addto}
 Path at line 81, before choices:
 (0.5,0){curl 1}
@@ -2880,20 +2880,12 @@ xpart %CAPSULE2536=xpart '
 ypart %CAPSULE2536=ypart '
 alpha=0.45p3~+7
 {numeric}
-### -1.6o1=-oo+1.7o2-18
-! Arithmetic overflow.
-l.134   numeric o[];
-                    xpart(alfa,[[pair alfa;0]])]])=-2/3[[save...
-Uh, oh. A little while ago one of the quantities that I was
-computing got too large, so I'm afraid your answers will be
-somewhat askew. You'll probably have to adopt different
-tactics next time. But I shall try to carry on anyway.
-
-### -3062.5o2*4 = -%CAPSULE2460-2500.00002oo+1000o3-32758.99998
-#### o6=0
-### -0.04578o3 = -o4+0.44112oo+8.50041
+### 4000o1 = -%CAPSULE2460+8000o2+1000o3+9
+### -4.87383o2 = -oo-0.0004%CAPSULE2460+0.39673o3-17.99643
+#### o6=-0.00027
+### -0.04366o3 = -o4+0.46689oo+8.40439
 ### -o4 = -o5
-### 0.21834o5 = -%CAPSULE2440+0.09631oo+3ooo+1.85596
+### 0.22894o5 = -%CAPSULE2440+0.10689oo+3ooo+1.92412
 {begingroup}
 {pair}
 ### -alfa=-%CAPSULE2428
@@ -3515,7 +3507,7 @@ End edges
 
 {showstats}
 Memory usage 3017&264 (273 still untouched)
-String usage 68&249 (1157&8801 now untouched)
+String usage 68&249 (1155&8795 now untouched)
 {("curb")infont("trapf")}
 Missing character: There is no c in font trapf!
 {-(0.5)}
@@ -3526,7 +3518,7 @@ Missing character: There is no c in font trapf!
 {e5:=picture}
 {showstats}
 Memory usage 2267&264 (273 still untouched)
-String usage 66&241 (1156&8797 now untouched)
+String usage 66&241 (1154&8791 now untouched)
 {show}
 {pencircle}
 {((0,0))penoffset(pen)}
@@ -4384,13 +4376,13 @@ But don't worry; continue and I'll just ignore it.
 >> (0,-2.5)
 {showstats}
 Memory usage 2744&607 (39 still untouched)
-String usage 73&279 (1140&8724 now untouched)
+String usage 73&279 (1138&8718 now untouched)
 {let}
 {showtoken}
 > f=tag
 {showstats}
 Memory usage 2704&536 (39 still untouched)
-String usage 73&279 (1140&8724 now untouched)
+String usage 73&279 (1138&8718 now untouched)
 {nullpicture}
 {(unknown picture e17)=(picture)}
 {addto}
@@ -4679,7 +4671,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 2147&536 (39 still untouched)
-String usage 73&277 (1112&5380 now untouched)
+String usage 73&277 (1110&5374 now untouched)
 {[repeat the loop]}
 >> bye
 ! Isolated expression.
@@ -4744,8 +4736,8 @@ by `endgroup'. So I've inserted `endgroup' now.
 (end occurred when if on line 37 was incomplete)
 (end occurred when elseif on line 22 was incomplete) 
 Here is how much of MetaPost's memory you used:
- 75 strings out of 1279
- 768 string characters out of 9337
+ 75 strings out of 1277
+ 768 string characters out of 9331
  4462 words of memory out of 4501
  337 symbolic tokens out of 2100
  8i,35n,8p,167b stack positions out of 30i,100n,150p,500b

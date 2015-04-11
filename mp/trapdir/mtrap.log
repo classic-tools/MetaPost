@@ -1,8 +1,8 @@
-This is MetaPost, C Version 0.62 (INIMP)  3 JAN 1995 13:20
+This is MetaPost, C Version 0.63 (INIMP)  5 APR 1995 06:18
 **mtrap 
 (mtrap.mp
 Memory usage 28&13 (3463 still untouched)
-String usage 4&24 (1309&9442 now untouched)
+String usage 4&24 (1307&9436 now untouched)
 >> 7629.39453
 >> -7629.39453
 >> 166.74463
@@ -297,13 +297,13 @@ tactics next time. But I shall try to carry on anyway.
 >> 32767
 >> 16394
 Memory usage 28&13 (3358 still untouched)
-String usage 8&32 (1305&9434 now untouched)
+String usage 8&32 (1303&9428 now untouched)
 Memory usage 109&13 (3358 still untouched)
-String usage 10&42 (1303&9424 now untouched)
+String usage 10&42 (1301&9418 now untouched)
 Memory usage 116&13 (3358 still untouched)
-String usage 11&45 (1302&9421 now untouched)
+String usage 11&45 (1300&9415 now untouched)
 Memory usage 139&56 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 71:
 End edges
 
@@ -314,7 +314,7 @@ End edges
 >> false
 >> 0
 Memory usage 152&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 73:
 clipping path:
 (50,0)..controls (50,13.26082) and (44.73216,25.97853)
@@ -339,7 +339,7 @@ End edges
 >> false
 >> 0
 Memory usage 220&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 75:
 setbounds path:
 (-3,-2)..controls (0.33333,-2) and (3.66667,-2)
@@ -356,7 +356,7 @@ End edges
 >> true
 >> 0
 Memory usage 245&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 76:
 Filled pen stroke :
 (1,1)..controls (1.66667,1.33333) and (2.33333,1.66667)
@@ -372,7 +372,7 @@ End edges
 >> false
 >> 1
 Memory usage 293&72 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 78:
 clipping path:
 (50,0)..controls (50,13.26082) and (44.73216,25.97853)
@@ -402,7 +402,7 @@ End edges
 >> false
 >> 2
 Memory usage 314&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> (0.5,2.5)
 >> (3.5,0.5)
 >> Edge structure at line 81:
@@ -440,7 +440,7 @@ End edges
 >> true
 >> 2
 Memory usage 339&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> (-7,-3)
 >> (2,7)
 >> Edge structure at line 82:
@@ -478,7 +478,7 @@ End edges
 >> true
 >> 2
 Memory usage 339&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 83:
 Filled contour colored (0.4,0.4,0.4):
 (-36,-24)..controls (3.99994,-24) and (44.00006,-24)
@@ -494,7 +494,7 @@ End edges
 >> false
 >> 1
 Memory usage 345&70 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 85:
 setbounds path:
 (2,-3)..controls (2,0.33333) and (2,3.66667)
@@ -535,7 +535,7 @@ End edges
 >> true
 >> 2
 Memory usage 364&59 (3358 still untouched)
-String usage 14&51 (1299&9415 now untouched)
+String usage 14&51 (1297&9409 now untouched)
 >> Edge structure at line 86:
 "A56" infont "trapf"
 transformed (0,0,1,0,0,1)
@@ -548,7 +548,7 @@ End edges
 >> false
 >> 1
 Memory usage 355&64 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 88:
 setbounds path:
 (2,-3)..controls (2,0.33333) and (2,3.66667)
@@ -592,7 +592,7 @@ End edges
 >> true
 >> 3
 Memory usage 365&59 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 89:
 Filled pen stroke :
 (4,5)..controls (5.33333,3.66667) and (6.66667,2.33333)
@@ -608,7 +608,7 @@ End edges
 >> false
 >> 1
 Memory usage 390&73 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 91:
 setbounds path:
 (2,-3)..controls (2,0.33333) and (2,3.66667)
@@ -657,7 +657,7 @@ End edges
 >> true
 >> 4
 Memory usage 409&59 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> "non-picture"
 >> false
 >> false
@@ -666,9 +666,9 @@ String usage 17&64 (1296&9402 now untouched)
 >> false
 >> 11
 Memory usage 409&59 (3358 still untouched)
-String usage 18&75 (1295&9391 now untouched)
+String usage 18&75 (1293&9385 now untouched)
 Memory usage 308&13 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 96:
 setbounds path:
 (2,-3)..controls (2,0.33333) and (2,3.66667)
@@ -719,10 +719,10 @@ pencircle transformed (0,0,0,0,0,1)
 End edges
 
 Memory usage 308&13 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> 4
 Memory usage 563&13 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 104:
 clipping path:
 (5,5)..controls (5,6.32608) and (4.47322,7.59785)
@@ -815,7 +815,7 @@ End edges
 
 >> 5
 Memory usage 747&13 (3358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> false
 >> false
 >> false
@@ -845,7 +845,7 @@ End edges
 >> (0,0)
 >> (0,0)
 Memory usage 1003&85 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> false
 >> false
 >> false
@@ -870,7 +870,7 @@ End edges
 >> (0,0)
 >> (0,0)
 Memory usage 873&85 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> false
 >> true
 >> false
@@ -895,7 +895,7 @@ End edges
 >> (0,0)
 >> (0,0)
 Memory usage 786&85 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> false
 >> false
 >> true
@@ -917,7 +917,7 @@ End edges
 >> (0.86603,0.5)
 >> (-0.5,0.86603)
 Memory usage 773&85 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> true
 >> false
 >> false
@@ -940,17 +940,17 @@ End edges
 >> (0,0)
 >> (0,0)
 Memory usage 788&85 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 >> Edge structure at line 116:
 "B34" infont "trapf"
 transformed (0,0,1,0,0,1)
 End edges
 
 Memory usage 319&13 (2358 still untouched)
-String usage 17&64 (1296&9402 now untouched)
+String usage 17&64 (1294&9396 now untouched)
 [0] [1]
 Memory usage 325&13 (2358 still untouched)
-String usage 21&79 (1289&9373 now untouched)
+String usage 21&79 (1287&9367 now untouched)
 >> "%!PS"
 >> "%%BoundingBox: -36 -24 84 84"
 >> "%%Creator: MetaPost"
@@ -986,20 +986,20 @@ String usage 21&79 (1289&9373 now untouched)
 >> "showpage"
 >> "%%EOF"
 Memory usage 325&13 (2358 still untouched)
-String usage 23&85 (1249&8333 now untouched)
+String usage 23&85 (1247&8327 now untouched)
 >> "%!PS-Adobe-3.0 EPSF-3.0"
 >> "%%BoundingBox: -84 -36 24 84"
 >> 40
 Memory usage 325&13 (2358 still untouched)
-String usage 23&85 (1208&7167 now untouched)
+String usage 23&85 (1206&7161 now untouched)
 >> "^^@"
 >> "%!PS"
 >> "%%BoundingBox: -36 -24 84 84"
 >> "%%Creator: MetaPost"
 Memory usage 325&13 (2358 still untouched)
-String usage 25&111 (1199&7086 now untouched)
+String usage 25&111 (1197&7080 now untouched)
 Memory usage 325&13 (2358 still untouched)
-String usage 27&126 (1150&6922 now untouched)
+String usage 27&126 (1148&6916 now untouched)
 >> "1  1"
 >> "%%Pages: 1"
 >> "2  4"
@@ -1007,11 +1007,11 @@ String usage 27&126 (1150&6922 now untouched)
 >> "3  9"
 >> "%%EndProlog"
 Memory usage 325&13 (2358 still untouched)
-String usage 26&136 (1146&6872 now untouched)
+String usage 26&136 (1144&6866 now untouched)
 {randomseed:=4.34294}
 >> "bbbbbbbbadadbbbbbbbbadadbbbbbbbbadadbbbbbbbbadadbbbbbbbbadad"
 Memory usage 325&13 (2358 still untouched)
-String usage 27&142 (1185&324 now untouched)
+String usage 27&142 (1183&318 now untouched)
 ! Number is too large (12000).
 l.185 n = 12000
                ; show n;
@@ -1036,7 +1036,7 @@ so I've changed your constant to that maximum amount.
 
 >> 32767.99998
 Memory usage 325&13 (2358 still untouched)
-String usage 27&142 (1185&324 now untouched)
+String usage 27&142 (1183&318 now untouched)
 >> triangle
 ! Improper iteration spec has been replaced by nullpicture.
 <to be read again> 
@@ -1046,7 +1046,7 @@ l.191 for x within triangle:
 When you say `for x in p', p must be a known picture.
 
 Memory usage 327&13 (2358 still untouched)
-String usage 28&150 (1184&316 now untouched)
+String usage 28&150 (1182&310 now untouched)
 >> path
 ! Not a string.
 <to be read again> 
@@ -1095,13 +1095,14 @@ l.195 ...e "triangle" to triang;
 I can't write to that file name.  It isn't a known string
 
 Memory usage 327&13 (2358 still untouched)
-String usage 28&150 (1183&308 now untouched)
- 
+String usage 28&150 (1181&302 now untouched)
+ ) 
 Here is how much of MetaPost's memory you used:
- 33 strings out of 1313
- 562 string characters out of 9466
+ 33 strings out of 1311
+ 562 string characters out of 9460
  2143 words of memory out of 4501
  236 symbolic tokens out of 2100
  5i,33n,6p,86b stack positions out of 30i,100n,150p,500b
  3 string compactions (moved 1131 characters, 90 strings)
+
 2 output files written: mtrap.0 .. mtrap.1

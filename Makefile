@@ -49,7 +49,8 @@ tex-install:
 	$(INSTALL) mplib/psfonts.map $(mppooldir)
 	$(INSTALL) mplib/*.mp $(mpinputs)
 	$(INSTALL) mplib/mproof.tex $(texinputs)
-	$(INSTALL) mplib/mpintro.* $(texdocs)
+	$(INSTALL) doc/mpintro.* $(texdocs)
+	$(INSTALL) doc/examples.mp $(mpinputs)
 
 install:	tex-install
 	$(INSTALL) mpware/dmp mpware/troffmpx mpware/mptotr $(makempxbin)

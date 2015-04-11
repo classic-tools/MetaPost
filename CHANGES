@@ -1,5 +1,36 @@
 ----------------------------------------------------------------------
-New macros in the mplib directory:
+What is new in Version 0.63:
+----------------------------------------------------------------------
+1. Backslashes in the PostScript output are rendered correctly.  They used
+   to come out as (\) instead of (\\).
+2. Recycling an independent variable should no longer cause spurious overflows.
+   (This bug was recently found in mf.web.)
+3. Pythagorean addition should now be faster in certain trivial cases.
+4. Rotating text by arbitrary angles should no longer cause bad PostScript
+   output.  The problem was that arguments to "fshow" could be inaccurate.
+5. Obscure bugs inherited from mf.web are now fixed.  These involve
+   balancing parentheses showing on the terminal, reporting the correct
+   line number in case of buffer overflow, and removing spurious reference
+   counts that could effect end-of-job statistics.
+6. Fonts with ec=255 should no longer cause mp's PostScript output routines
+   to go into a loop.
+7. When mp's string mechanism was heavily used, file names could occaisonally
+   be printed on the terminal and log file as "(?)".  This has been fixed.
+8. Setting PATHEXPAND in site.h causes mp, dvitomp and dmp to understand "//"
+   in path variables as "search multiple levels of subdirectories".  This is
+   for compatibility with recent versions of the Web2c TeX distribution.
+9. A typo in mpware/makempx and mpware/troffmpx has been fixed.  Previous
+   versions of these scripts would not run on some systems.
+10. Data files *.d have been added to the doc directory.  These are used by
+   doc/mpgraph.mp which generates figures for "Drawing Graphs with MetaPost".
+11. Typos in mpintro.tex and mp.web's TeX material have been fixed.
+12. Files examples.mp, mpintro.tex and mpintro.bib have moved from mplib to
+    the doc directory.
+13. The author's email address now appears in the README file.
+
+
+----------------------------------------------------------------------
+Macros added to the mplib directory between Versions 0.50 and 0.62:
 ----------------------------------------------------------------------
 rboxes.mp is a slightly more general version of boxes.mp
 TEX.mp provides a way of running tex dynamically instead of as a pre-processor
@@ -10,7 +41,7 @@ used by graph.mp, format.mp, and sarith.mp.
 
 
 ----------------------------------------------------------------------
-Minor bug fixes subsequent to Version 0.60
+Other minor bug fixes subsequent to Version 0.60
 ----------------------------------------------------------------------
 1. plain.mp has been fixed so that the x**y works properly when x<0 and y is
    a negative integer.

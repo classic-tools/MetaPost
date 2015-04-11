@@ -101,7 +101,7 @@ features of the implementation, but they rarely attempt to explain the
 @.WEB@>
 @:METAFONTbook}{\sl The {\logos METAFONT\/}book@>
 {\sl A User's Manual for \MP\/} Computing Science Technical Report 162,
-AT\&T Bell Laboratories.
+AT\AM T Bell Laboratories.
 
 @ The present implementation is a preliminary version, but the possibilities
 for new features are limited by the desire to remain as nearly compatible
@@ -113,10 +113,10 @@ extensions are not extremely difficult to make.
 The |banner| string defined here should be changed whenever \MP\
 undergoes any modifications, so that it will be clear which version of
 \MP\ might be the guilty party when a problem arises.
-@^extensions to \MF@>
+@^extensions to \MP@>
 @^system dependencies@>
 
-@d banner=='This is MetaPost, Version 0.62' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.63' {printed when \MP\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -897,7 +897,7 @@ first \.{input} command.)
 The first line is even more special if we are lucky enough to have an operating
 system that treats \MP\ differently from a run-of-the-mill \PASCAL\ object
 program. It's nice to let the user start running a \MP\ job by typing
-a command line like `\.{MF cmr10}'; in such a case, \MP\ will operate
+a command line like `\.{MP cmr10}'; in such a case, \MP\ will operate
 as if the first line of input were `\.{cmr10}', i.e., the first line will
 consist of the remainder of the command line, after the part that invoked \MP.
 
@@ -1082,7 +1082,7 @@ end
   end
 
 @ The following routine is similar to |str_room(1)| but it uses a negative
-argument to prevent |do_compaction| from abortint when string space is
+argument to prevent |do_compaction| from aborting when string space is
 exhausted.
 
 @<Declare the procedure called |unit_str_room|@>=
@@ -1275,14 +1275,25 @@ pool_ptr:=p
 
 @<Make sure that there is room for another string with |needed| char...@>=
 begin if str_use>=max_strings-1 then
+  begin str_overflowed:=true;
   overflow("number of strings", max_strings-1-init_str_use);
 @:MetaPost capacity exceeded number of strings}{\quad number of strings@>
+  end;
 if pool_ptr+needed>max_pool_ptr then
   if pool_ptr+needed>pool_size then
-    overflow("pool size", pool_size-init_pool_ptr)
+    begin str_overflowed:=true;
+    overflow("pool size", pool_size-init_pool_ptr);
 @:MetaPost capacity exceeded pool size}{\quad pool size@>
+    end
   else max_pool_ptr:=pool_ptr+needed;
 end
+
+@ Routines that can be called after string overflow need a way of checking
+whether it is safe to use |str_room|, |make_string|, or |do_compaction|.
+
+@<Glob...@>=
+@!str_overflowed:boolean;  {is \MP\ aborting due to pool size of number of
+    strings?}
 
 @ @<Account for the compaction and make sure the statistics agree with...@>=
 if (str_start[str_ptr]<>pool_in_use)or(str_use<>strs_in_use) then
@@ -1372,6 +1383,7 @@ var @!k,@!l:0..255; {small indices or counters}
 begin pool_ptr:=0; str_ptr:=0; max_pool_ptr:=0; max_str_ptr:=0;
 str_start[0]:=0;
 next_str[0]:=1;
+str_overflowed:=false;
 stat pool_in_use:=0; strs_in_use:=0;
   max_pl_used:=0; max_strs_used:=0;
   @<Initialize compaction statistics@>;
@@ -1429,7 +1441,7 @@ must be printable.
 
 @ When the \.{WEB} system program called \.{TANGLE} processes the \.{MP.WEB}
 description that you are now reading, it outputs the \PASCAL\ program
-\.{MP.PAS} and also a string pool file called \.{MF.POOL}. The \.{INIMP}
+\.{MP.PAS} and also a string pool file called \.{MP.POOL}. The \.{INIMP}
 @.WEB@>@.INIMP@>
 program reads the latter file, where each string appears as a two-digit decimal
 length followed by the string itself, and the information is recorded in
@@ -1479,7 +1491,7 @@ else  begin if (xord[m]<"0")or(xord[m]>"9")or@|
 end
 
 @ The \.{WEB} operation \.{@@\$} denotes the value that should be at the
-end of this \.{MF.POOL} file; any other value means that the wrong pool
+end of this \.{MP.POOL} file; any other value means that the wrong pool
 file has been loaded.
 @^check sum@>
 
@@ -2793,7 +2805,7 @@ begin a:=abs(a); b:=abs(b);
 if a<b then
   begin r:=b; b:=a; a:=r;
   end; {now |0<=b<=a|}
-if a>0 then
+if b>0 then
   begin if a<fraction_two then big:=false
   else  begin a:=a div 4; b:=b div 4; big:=true;
     end; {we reduced the precision to avoid arithmetic overflow}
@@ -9428,7 +9440,7 @@ for |(dx,dy)|, going counterclockwise if |ccw| is |true|.  This assumes that
 in the sense determined by |ccw| is less than or equal to $180^\circ$.
 
 If the pen polygon has only two edges, they could both be parallel
-to ((dx,dy)|.  In this case, we must be careful to stop after crossing the first
+to |(dx,dy)|.  In this case, we must be careful to stop after crossing the first
 such edge in order to avoid an infinite loop.
 
 @<Declare subroutines needed by |offset_prep|@>=
@@ -11403,6 +11415,7 @@ by analogy with |line_stack|.
 
 @<Glob...@>=
 @!in_open : 0..max_in_open; {the number of lines in the buffer, less one}
+@!open_parens : 0..max_in_open; {the number of open text files}
 @!input_file : array[1..max_in_open] of alpha_file;
 @!line_stack : array[0..max_in_open] of integer; {the line number for each file}
 @!iname_stack : array[0..max_in_open] of str_number;
@@ -11912,7 +11925,7 @@ actions.
 
 @<Initialize the input routines@>=
 begin input_ptr:=0; max_in_stack:=0;
-in_open:=0; max_buf_stack:=0;
+in_open:=0; open_parens:=0; max_buf_stack:=0;
 param_ptr:=0; max_param_stack:=0;
 first:=1;
 start:=1; index:=0; line:=0; name:=is_term;
@@ -12345,7 +12358,7 @@ if force_eof then
   if mpx_reading then
     @<Complain that the \.{MPX} file ended unexpectly; then set
       |cur_sym:=frozen_mpx_break| and |goto comon_ending|@>
-  else begin print_char(")");
+  else begin print_char(")"); decr(open_parens);
       update_terminal; {show user that file has been read}
       end_file_reading; {resume previous level}
     if check_outer_validity then goto restart @+else goto restart;
@@ -13858,7 +13871,7 @@ difficult to devise.
 \MP\ assumes that a file name has three parts: the name proper; its
 ``extension''; and a ``file area'' where it is found in an external file
 system.  The extension of an input file is assumed to be
-`\.{.mf}' unless otherwise specified; it is `\.{.log}' on the
+`\.{.mp}' unless otherwise specified; it is `\.{.log}' on the
 transcript file that records each run of \MP; it is `\.{.tfm}' on the font
 metric files that describe characters in any fonts created by \MP; it is
 `\.{.ps}' or `.{\it nnn}' for some number {\it nnn} on the \ps\ output files;
@@ -14120,13 +14133,14 @@ most recently opened, if it is possible to do this in a \PASCAL\ program.
 @^system dependencies@>
 
 This routine might be called after string memory has overflowed, hence
-we dare not use `|str_room|'.
+we check for this before calling `|str_room|'.
 
 @p function make_name_string:str_number;
 var @!k:1..file_name_size; {index into |name_of_file|}
-begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings) then
+begin if str_overflowed then
   make_name_string:="?"
-else  begin for k:=1 to name_length do append_char(xord[name_of_file[k]]);
+else  begin str_room(name_length);
+  for k:=1 to name_length do append_char(xord[name_of_file[k]]);
   make_name_string:=make_string;
   end;
 end;
@@ -14353,7 +14367,7 @@ if job_name=0 then
     and |loc| needn't be set to meaningful values yet}
 if term_offset+length(name)>max_print_line-2 then print_ln
 else if (term_offset>0)or(file_offset>0) then print_char(" ");
-print_char("("); print(name); update_terminal;
+print_char("("); incr(open_parens); print(name); update_terminal;
 @<Flush |name| and replace it with |cur_name| if it won't be needed@>;
 @<Read the first line of the new file@>;
 end;
@@ -14372,9 +14386,10 @@ contain a single blank line.
 @^system dependencies@>
 
 @<Read the first line...@>=
-begin if not input_ln(cur_file,false) then do_nothing;
+begin line:=1;
+if input_ln(cur_file,false) then do_nothing;
 firm_up_the_line;
-buffer[limit]:="%"; first:=limit+1; loc:=start; line:=1;
+buffer[limit]:="%"; first:=limit+1; loc:=start;
 end
 
 @ @<Put the desired file name in |(cur_name,cur_ext,cur_area)|@>=
@@ -14977,8 +14992,8 @@ max_c[t]:=abs(value(r)); max_ptr[t]:=r;
 end
 
 @ @<Choose a dependent...@>=
-begin if (max_c[dependent]>=fraction_one)or@|
- (max_c[dependent] div @'10000 >= max_c[proto_dependent]) then
+begin if (max_c[dependent] div @'10000 >=
+          max_c[proto_dependent]) then
   t:=dependent
 else t:=proto_dependent;
 @<Determine the dependency list |s| to substitute for the independent
@@ -21818,7 +21833,7 @@ while i<str_stop(s) do
     print_char("0"+((k div 8) mod 8));
     print_char("0"+(k mod 8));
     end
-  else begin if (k="(")or(k=")") then print_char("\");
+  else begin if (k="(")or(k=")")or(k="\") then print_char("\");
     print_char(k);
     end;
   incr(i);
@@ -21901,7 +21916,7 @@ to avoid exceeding |emergency_line_length| the return value says where to
 start scanning next time.
 
 @<Declare the \ps\ output procedures@>=
-function ps_marks_out(@!f:font_number;c:eight_bits):halfword;
+function ps_marks_out(@!f:font_number;@!c:eight_bits):halfword;
 var @!bc,@!ec:eight_bits; {only encode characters between these bounds}
 @!lim:integer; {the maximum number of marks to encode before truncating}
 @!p:0..font_mem_size; {|font_info| index for the current character}
@@ -21956,7 +21971,7 @@ hex_digit_out(d)
 characters in font~|f| with character code at least~|c|.
 
 @<Declare the \ps\ output procedures@>=
-function check_ps_marks(@!f:font_number;c:eight_bits):boolean;
+function check_ps_marks(@!f:font_number; @!c:integer):boolean;
 label exit;
 var @!p:0..font_mem_size; {|font_info| index for the current character}
 begin for p:=char_base[f]+si(c) to char_base[f]+si(font_ec[f]) do
@@ -21987,17 +22002,44 @@ var @!p,@!q:pointer; {the previous and current font size nodes}
 begin q:=font_sizes[f];
 i:=0;
 while q<>null do
-  if abs(s-sc_factor(q))<=fscale_tolerance then goto found
+  begin if abs(s-sc_factor(q))<=fscale_tolerance then goto found
   else begin p:=q; q:=link(q);
     incr(i);
     end;
-if i=max_quarterword then
-  overflow("sizes per font",max_quarterword);
+  if i=max_quarterword then
+    overflow("sizes per font",max_quarterword);
 @:MetaPost capacity exceeded sizes per font}{\quad sizes per font@>
+  end;
 q:=get_node(font_size_size);
 sc_factor(q):=s;
 if i=0 then font_sizes[f]:=q @+else link(p):=q;
 found:size_index:=i;
+end;
+
+@ @<Declare the \ps\ output procedures@>=
+function indexed_size(@!f:font_number;@!j:quarterword):scaled;
+var @!p:pointer; {a font size node}
+@!i:quarterword; {the size index for |p|}
+begin p:=font_sizes[f];
+i:=0;
+if p=null then confusion("size");
+while (i<>j) do
+  begin incr(i); p:=link(p);
+  if p=null then confusion("size");
+  end;
+indexed_size:=sc_factor(p);
+end;
+
+@ @<Declare the \ps\ output procedures@>=
+procedure clear_sizes;
+var @!f:font_number;  {the font whose size list is being cleared}
+@!p:pointer;  {current font size nodes}
+begin for f:=null_font+1 to last_fnum do
+  while font_sizes[f]<>null do
+    begin p:=font_sizes[f];
+    font_sizes[f]:=link(p);
+    free_node(p,font_size_size);
+    end;
 end;
 
 @ The \&{special} command saves up lines of text to be printed during the next
@@ -22054,6 +22096,7 @@ var @!p:pointer; {the current graphical object}
 @!ldf:font_number; {the last \.{DocumentFont} listed (otherwise |null_font|)}
 @!done_fonts:boolean; {have we finished listing the fonts in the header?}
 @!next_size:quarterword; {the size index for fonts being listed}
+@!cur_fsize:array[font_number] of pointer; {current positions in |font_sizes|}
 @!ds,@!scf:scaled; {design size and scale factor for a text node}
 @!transformed:boolean; {is the coordinate system being transformed?}
 begin open_output_file;
@@ -22080,6 +22123,7 @@ print("showpage"); print_ln;
 print("%%EOF"); print_ln;
 a_close(ps_file);
 selector:=non_ps_setting;
+if internal[prologues]<=0 then clear_sizes;
 @<End progress report@>;
 if internal[tracing_output]>0 then print_edges(h," (just shipped out)",true);
 end;
@@ -22113,19 +22157,19 @@ print_ln
 
 @ @<List all the fonts and magnifications for edge structure~|h|@>=
 @<Scan all the text nodes and set the |font_sizes| lists;
-  if |internal[prologues]>0| list the sizes selected by |choose_scale|,
+  if |internal[prologues]<=0| list the sizes selected by |choose_scale|,
   apply |unmark_font| to each font encountered, and call |mark_string|
   whenever the size index is zero@>;
 if internal[prologues]>0 then
   @<Give a \.{DocumentFonts} comment listing all fonts with non-null
     |font_sizes| and eliminate duplicates@>
 else begin next_size:=0;
+  @<Make |cur_fsize| a copy of the |font_sizes| array@>;
   repeat done_fonts:=true;
   for f:=null_font+1 to last_fnum do
-    begin if font_sizes[f]<>null then
-      @<Print the \.{\%*Font} comment for font |f| and remove the first size
-        from |font_sizes[f]|@>;
-    if font_sizes[f]<>null then
+    begin if cur_fsize[f]<>null then
+      @<Print the \.{\%*Font} comment for font |f| and advance |cur_fsize[f]|@>;
+    if cur_fsize[f]<>null then
       begin unmark_font(f); done_fonts:=false; @+end;
     end;
   if not done_fonts then
@@ -22133,6 +22177,10 @@ else begin next_size:=0;
       that size index@>;
   until done_fonts;
   end
+
+@ @<Make |cur_fsize| a copy of the |font_sizes| array@>=
+for f:=null_font+1 to last_fnum do
+  cur_fsize[f]:=font_sizes[f]
 
 @ It's not a good idea to make any assumptions about the |font_ps_name| entries,
 so we carefully remove duplicates.  There is no harm in using a slow, brute-force
@@ -22178,7 +22226,7 @@ while p<>null do
 line.  We might have to repeat line in order to get the character usage
 information to fit within |emergency_line_length|.
 
-@<Print the \.{\%*Font} comment for font |f| and remove the first...@>=
+@<Print the \.{\%*Font} comment for font |f| and advance |cur_fsize[f]|@>=
 begin t:=0;
 while check_ps_marks(f,t) do
   begin print_nl("%*Font: ");
@@ -22187,7 +22235,7 @@ while check_ps_marks(f,t) do
   print(font_name[f]);
   print_char(" ");
   ds:=(font_dsize[f] + 8) div 16;
-  print_scaled(take_scaled(ds,sc_factor(font_sizes[f])));
+  print_scaled(take_scaled(ds,sc_factor(cur_fsize[f])));
   if ps_offset+12>emergency_line_length then goto done;
   print_char(" ");
   print_scaled(ds);
@@ -22195,9 +22243,7 @@ while check_ps_marks(f,t) do
   t:=ps_marks_out(f,t);
   end;
 done:
-t:=font_sizes[f];
-font_sizes[f]:=link(t);
-free_node(t,font_size_size);
+cur_fsize[f]:=link(cur_fsize[f]);
 end
 
 @ @<Increment |next_size| and apply |mark_string_chars| to all text nodes...@>=
@@ -22278,7 +22324,9 @@ if left_type(q)<>endpoint then
 
 @ @<Cases for translating graphical object~|p| into \ps@>=
 text_code: if (font_n(p)<>null_font) and (length(text_p(p))>0) then
-  begin scf:=choose_scale(p);
+  begin if internal[prologues]>0 then
+    scf:=choose_scale(p)
+  else scf:=indexed_size(font_n(p), name_type(p));
   @<Shift or transform as necessary before outputting text node~|p| at scale
     factor~|scf|; set |transformed:=true| if the original transformation must
     be restored@>;
@@ -22823,6 +22871,12 @@ label exit;
 var c:small_number; {0 for \&{end}, 1 for \&{dump}}
 begin c:=cur_mod;
 if job_name=0 then open_log_file;
+while input_ptr>0 do
+  if token_state then end_token_list@+else end_file_reading;
+while loop_ptr<>null do stop_iteration;
+while open_parens>0 do
+  begin print(" )"); decr(open_parens);
+  end;
 while cond_ptr<>null do
   begin print_nl("(end occurred when ");@/
 @.end occurred...@>

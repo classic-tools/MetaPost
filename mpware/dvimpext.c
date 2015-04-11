@@ -70,6 +70,9 @@ void packrealnameoffile();
 #define PATH_DELIM ':'
 #endif
 
+extern void pathexpand();	/* defined in ../mp/pathexp.c */
+
+
 /*
  * setpaths is called to set up the pointer fontpath
  * as follows:  if the user's environment has a value for TEXFONTS
@@ -164,7 +167,8 @@ void packrealnameoffile(cpp)
     char **cpp;
 {
     register char *p,*realname;
-    
+    int dirlen;
+
     realname = realnameoffile;
     if ((p = *cpp)!=NULL) {
 	while ((*p != PATH_DELIM) && (*p != '\0')) {
@@ -177,6 +181,7 @@ void packrealnameoffile(cpp)
 	*realname++ = '/';  /* separate the area from the name to follow */
 	}
     /* now append curname to realname... */
+    dirlen = realname - realnameoffile;
     p = curname + 1;
     while (*p != ' ') {
 	if (realname >= &(realnameoffile[FILENAMESIZE-1])) {
@@ -186,6 +191,7 @@ void packrealnameoffile(cpp)
 	*realname++ = *p++;
 	}
     *realname = '\0';
+    pathexpand(realnameoffile, dirlen, FILENAMESIZE);   /* expand "//" */
 }
 
 static char **gargv;

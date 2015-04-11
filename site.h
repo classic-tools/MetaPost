@@ -131,6 +131,18 @@ typedef long integer;
 #define	MAXPATHLENGTH	5000
 #endif
 
+/* Define PATHEXP if you want mp, dvitomp, and dmp to understand
+   double slashes "//" in the paths here and in the corresponding
+   environment variables.  There can only be one "//" per path.  It means
+   "expand zero or more levels of subdirectories, assuming that directories
+   contain files or subdirectories, but not both".  This is for compatibility
+   with recent versions of the Web2c distribution.  If you set it, be prepared
+   to edit mp/pathexp.c.  That code has only been tested on one system.
+*/
+#ifndef PATHEXP
+#undef PATHEXP
+#endif
+
 
 /*******************************************************************
   The following definitions are unique to MetaPost

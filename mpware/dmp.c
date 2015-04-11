@@ -50,6 +50,8 @@ char *getenv();
 char *calloc();
 void exit();
 
+extern void pathexpand();	/* defined in ../mp/pathexp.c */
+
 #ifndef NULL
 #define NULL ((char*) 0)
 #endif
@@ -221,6 +223,7 @@ FILE *fsearch(nam, ext, path)
 {
     FILE *f;
     char *s, *p;
+    int dirlen;
 
     if (nam[0]=='/')	/* file name has absolute path */
 	path = NULL;
@@ -232,9 +235,11 @@ FILE *fsearch(nam, ext, path)
 	    if (*path=='\0') path=NULL; else path++;
 	    add_to_pool('/');
 	}
+	dirlen = &strpool[poolsize] - s;
 	for (p=nam; *p!='\0'; p++) add_to_pool(*p);
 	for (p=ext; *p!='\0'; p++) add_to_pool(*p);
 	add_to_pool('\0');
+	pathexpand(s, dirlen, &strpool[POOLMAX]-s);
 	f = fopen(s, "r");
 	poolsize = s - &strpool[0];
     } while (f==NULL && path!=NULL);

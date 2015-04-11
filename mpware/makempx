@@ -43,7 +43,7 @@ then
 	;;
     esac
 
-    $MPLIB/dvitomp mpx$$.dvi $MPXFILE >$ERRlOG
+    $MPLIB/dvitomp mpx$$.dvi $MPXFILE >$ERRLOG
     case $? in
     0)	;;
     *)  mv -f mpx$$.dvi $DVIERR

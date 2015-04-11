@@ -24,6 +24,7 @@
 % Version 0.30 outputs setbounds statments and ignores rules 1sp wide (May 1991)
 % Version 0.60 outputs rules as penstrokes with butt ends
 % Version 0.62 makes the output more robust when used in a macro definition
+% Version 0.63 expands "//" in paths if this is enabled in site.h
 
 % Although considerable effort has been expended to make the DVItoMP program
 % correct and reliable, no warranty is implied; the author disclaims any
@@ -80,7 +81,7 @@ an ``\.{MPX}'' file.
 The |banner| string defined here should be changed whenever \.{DVItoMP}
 gets modified.
 
-@d banner=='% Written by DVItoMP, Version 0.60'
+@d banner=='% Written by DVItoMP, Version 0.63'
   {the first line of the output file}
 
 @ This program is written in standard \PASCAL, except where it is necessary

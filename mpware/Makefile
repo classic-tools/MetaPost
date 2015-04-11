@@ -50,12 +50,16 @@ run-triptrap:	mptotex newer
 		diff testex.err testex2
 
 # DVItoMP
-dvitomp:	dvitomp.o dvimpext.o
-		$(CC) $(CFLAGS) -o dvitomp dvitomp.o dvimpext.o
+dvitomp:	dvitomp.o dvimpext.o pathexp.o
+		$(CC) $(CFLAGS) -o dvitomp dvitomp.o dvimpext.o pathexp.o
 dvimpext.o:	dvimpext.c ${SITEDIR}/site.h
 dvitomp.o:	dvitomp.c mpware.h
 dvitomp.c:	dvitomp.p mpware.def
 dvitomp.p:	dvitomp.web dvitomp.ch
+
+pathexp.o:	../mp/pathexp.c
+		cp ../mp/pathexp.c .
+		$(CC) $(CFLAGS) -c pathexp.c
 
 
 # MPtoTEX
@@ -67,14 +71,14 @@ mptotr:		mptotr.o
 		$(CC) $(CFLAGS) -o mptotr mptotr.o
 
 # DMP
-dmp:		dmp.o
-		$(CC) $(CFLAGS) -o dmp dmp.o -lm
+dmp:		dmp.o pathexp.o
+		$(CC) $(CFLAGS) -o dmp dmp.o pathexp.o -lm
 
 # newer  (the default rules suffice)
 
 
 clean:
 	rm -f dvitomp.p dvitomp.pool *.o testex1 testex2
-	rm -f dvitomp mptotex mptotr dmp newer
+	rm -f dvitomp mptotex mptotr dmp newer pathexp.c
 veryclean:	clean
 	rm -f dvitomp.c dvitomp.h \#*\# *~ *.bak *.ckp core
