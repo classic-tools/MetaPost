@@ -43,9 +43,9 @@
 % Change banner string
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
-@d banner=='% Written by DVItoMP, Version 0.63'
+@d banner=='% Written by DVItoMP, Version 0.632'
 @y
-@d banner=='% Written by DVItoMP, C Version 0.63'
+@d banner=='% Written by DVItoMP, C Version 0.632'
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,12 +165,12 @@ end;
 @#
 function open_tfm_file:boolean; {prepares to read packed bytes in |tfm_file|}
 begin reset(tfm_file,cur_name);
-return not eof(tfm_file);
+open_tfm_file:=(not eof(tfm_file));
 end;
 @#
 function open_vf_file:boolean; {prepares to read packed bytes in |vf_file|}
 begin reset(vf_file,cur_name);
-return not eof(vf_file);
+open_vf_file:=(not eof(vf_file));
 end;
 @y
 specifies the file name.  In C, we test the success of this operation by
@@ -356,7 +356,7 @@ cur_name[l+2]:='t'; cur_name[l+3]:='f'; cur_name[l+4]:='m'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
 print_ln('setbounds _p to (0,',dd:1:4,')--(',w:1:4,',',dd:1:4,')--');
-print_ln(' (',w:1:4,',',h:1:4,')--(0,',h:1:4,')--cycle;');
+print_ln(' (',w:1:4,',',h:1:4,')--(0,',h:1:4,')--cycle;')
 @y
 print('setbounds _p to (0,');
 print_real(dd,1,4); print(')--(');
@@ -365,7 +365,7 @@ print_real(dd,1,4); print_ln(')--');@/
 print(' (');
 print_real(w,1,4);  print(',');
 print_real(h,1,4);  print(')--(0,');
-print_real(h,1,4);  print_ln(')--cycle;');
+print_real(h,1,4);  print_ln(')--cycle;')
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

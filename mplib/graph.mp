@@ -511,7 +511,14 @@ vardef Gisnull_(expr p) = (urcorner p=origin) and (llcorner p=origin) enddef;
 
 vardef Garwhd_(expr p)(text w) =        % Draw arrowhead for path p, with list w
   addto Gcur_ also
-    image(draw arrowhead p w; Gsetb_ point infinity of p..cycle);
+    image(filldraw arrowhead(
+            Garhwext_(precontrol infinity of p, point infinity of p)) w;
+        Gsetb_ point infinity of p..cycle);
+enddef;
+
+vardef Garhwext_(expr p, q) =
+  if p<>q: (q - 100pt*unitvector(q-p)) -- fi
+  q
 enddef;
 
 

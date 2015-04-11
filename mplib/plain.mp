@@ -1,8 +1,8 @@
 % This file gives the macros for plain MetaPost
 % It contains all the features of plain METAFONT except those specific to
 % font-making.  (See The METAFONTbook by D.E. Knuth).
-% There are also a number macros labeling figures etc.
-string base_name, base_version; base_name="plain"; base_version="0.62";
+% There are also a number of macros for labeling figures, etc.
+string base_name, base_version; base_name="plain"; base_version="0.63";
 
 message "Preloading the plain mem file, version "&base_version;
 
@@ -472,10 +472,11 @@ vardef thelabel@#(expr s,z) =  % Position s near z
 enddef;
 
 def label = draw thelabel enddef;
+newinternal dotlabeldiam; dotlabeldiam:=3bp;
 vardef dotlabel@#(expr s,z) =
   label@#(s,z);
   interim linecap:=rounded;
-  draw z withpen pencircle scaled 3bp;
+  draw z withpen pencircle scaled dotlabeldiam;
 enddef;
 def makelabel = dotlabel enddef;
 

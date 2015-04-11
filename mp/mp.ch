@@ -47,9 +47,9 @@
 % [1.2] banner line
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
-@d banner=='This is MetaPost, Version 0.631' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.632' {printed when \MP\ starts}
 @y
-@d banner=='This is MetaPost, C Version 0.631' {printed when \MP\ starts}
+@d banner=='This is MetaPost, C Version 0.632' {printed when \MP\ starts}
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

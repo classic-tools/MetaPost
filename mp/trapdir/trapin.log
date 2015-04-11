@@ -1,4 +1,4 @@
-This is MetaPost, C Version 0.631 (INIMP)  18 OCT 1995 21:50
+This is MetaPost, C Version 0.632 (INIMP)  24 JAN 1997 11:13
 **\input trap
 (trap.mp
 >> << == >> ::: ||`` ''--!! ??## && @@ $$[[]]{{ }}((5.5 0.5))
@@ -192,7 +192,7 @@ Path at line 18, after choices:
 )
 *dump
 Beginning to dump on file trap.mem
- (preloaded mem=trap 95.10.18)
-at most 1226 strings of total length 22671
+ (preloaded mem=trap 97.1.24)
+at most 1226 strings of total length 22670
 398 memory locations dumped; current usage is 318&68
 279 symbolic tokens

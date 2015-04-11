@@ -1,4 +1,18 @@
 ----------------------------------------------------------------------
+Version 0.632:
+----------------------------------------------------------------------
+When prologues is negative, the output files use full precision for
+coordinates in "%%BoundingBox" comments.  In btex..etex blocks,
+"number too large" and "invalid character" errors are suppressed.
+The result of btex..etex is now guaranteed to be in a setbounds path
+so that a for...within iteration will always treat it as a unit.
+
+There are also some obscure bug fixes involving string compaction when
+scanning a file name or when mp is compiled in debug mode.  Some possible
+identifier name conflicts and range check errors have also been fixed.
+
+
+----------------------------------------------------------------------
 Version 0.631:
 ----------------------------------------------------------------------
 This version fixes an obscure bug that could cause certain perfectly valid

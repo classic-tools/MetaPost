@@ -21,7 +21,7 @@
 
 
 % Much of this program was copied with permission from MF.web Version 1.9
-% It intreprets a language very similar to D.E. Knuth's METAFONT, but with
+% It interprets a language very similar to D.E. Knuth's METAFONT, but with
 % changes designed to make it more suitable for PostScript output.
 
 % TeX is a trademark of the American Mathematical Society.
@@ -40,12 +40,12 @@
 \font\tenlogo=logo10 % font used for the METAFONT logo
 \font\logos=logosl10
 \def\MF{{\tenlogo META}\-{\tenlogo FONT}}
-\def\MP{MetaPost}
+\def\MP{{\tenlogo META}\-{\tenlogo POST}}
 \def\<#1>{$\langle#1\rangle$}
 \def\section{\mathhexbox278}
 \let\swap=\leftrightarrow
 \def\round{\mathop{\rm round}\nolimits}
-\mathchardef\vb="026A	% synonym for `\|'
+\mathchardef\vb="026A % synonym for `\|'
 
 \def\(#1){} % this is used to make section names sort themselves better
 \def\9#1{} % this is used for sort keys in the index via @@:sort key}{entry@@>
@@ -100,7 +100,7 @@ features of the implementation, but they rarely attempt to explain the
 {\sl The {\logos METAFONT\/}book} as well as the manual
 @.WEB@>
 @:METAFONTbook}{\sl The {\logos METAFONT\/}book@>
-{\sl A User's Manual for \MP\/} Computing Science Technical Report 162,
+{\sl A User's Manual for MetaPost}, Computing Science Technical Report 162,
 AT\AM T Bell Laboratories.
 
 @ The present implementation is a preliminary version, but the possibilities
@@ -116,7 +116,7 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner=='This is MetaPost, Version 0.631' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.632' {printed when \MP\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -479,7 +479,7 @@ that |text_char| consists of the elements |chr(first_text_char)| through
 |chr(last_text_char)|, inclusive. The following definitions should be
 adjusted if necessary.
 @^system dependencies@>
-										
+
 @d text_char == char {the data type of characters in text files}
 @d first_text_char=0 {ordinal number of the smallest element of |text_char|}
 @d last_text_char=255 {ordinal number of the largest element of |text_char|}
@@ -1068,7 +1068,7 @@ value of |pool_ptr| has gotten too high; this test is supposed to be
 made before |append_char| is used.
 
 To test if there is room to append |l| more characters to |str_pool|,
-we shall write |str_room(l)|, that tries to make sure there is enough room
+we shall write |str_room(l)|, which tries to make sure there is enough room
 by compacting the string pool if necessary.  If this does not work,
 |do_compaction| aborts \MP\ and gives an apologetic error message.
 
@@ -1081,13 +1081,13 @@ end
     else max_pool_ptr:=pool_ptr+#;
   end
 
-@ The following routine is similar to |str_room(1)| but it uses a negative
-argument to prevent |do_compaction| from aborting when string space is
-exhausted.
+@ The following routine is similar to |str_room(1)| but it uses the
+argument |pool_size| to prevent |do_compaction| from aborting when
+string space is exhausted.
 
 @<Declare the procedure called |unit_str_room|@>=
 procedure unit_str_room;
-begin if pool_ptr>=pool_size then do_compaction(-1);
+begin if pool_ptr>=pool_size then do_compaction(pool_size);
 if pool_ptr>=max_pool_ptr then max_pool_ptr:=pool_ptr+1;
 end;
 
@@ -1153,16 +1153,14 @@ if str_ptr>max_str_ptr then
     do_compaction(0);
     goto restart;
     end
-  else begin max_str_ptr:=str_ptr;
+  else begin debug if strs_used_up<>max_str_ptr then confusion("s");@+gubed@/
+@:this can't happen s}{\quad \.s@>
+    max_str_ptr:=str_ptr;
     next_str[str_ptr]:=max_str_ptr+1;
     end;
 str_ref[s]:=1;
 str_start[str_ptr]:=pool_ptr;
 incr(strs_used_up);
-debug if str_ptr=max_str_ptr then
-  if strs_used_up<>str_ptr then confusion("s");
-@:this can't happen s}{\quad \.s@>
-gubed@;
 stat incr(strs_in_use);
   pool_in_use:=pool_in_use+length(s);
   if pool_in_use>max_pl_used then max_pl_used:=pool_in_use;
@@ -1178,7 +1176,7 @@ resetting |str_start[str_ptr]|.  It is not practical to ensure that the new
 value for this pointer is in range, so this procedure should be used carefully.
 
 @p procedure chop_last_string(@!p:pool_pointer);
-begin stat pool_in_use:=pool_in_use+(p-str_start[str_ptr]); @+tats;
+begin stat pool_in_use:=pool_in_use-(str_start[str_ptr]-p); @+tats;
 str_start[str_ptr]:=p;
 end;
 
@@ -1187,8 +1185,8 @@ is to recover unused space in the |str_pool| array by recopying the strings
 to close the gaps created when some strings become unused.  All string
 numbers~$k$ where |str_ref[k]=0| are to be linked into the list of free string
 numbers after |str_ptr|.  If this fails to free enough pool space we issue an
-|overflow| error unless |needed<0|.  Calling |do_compaction| with |needed<0|
-supresses all overflow tests.
+|overflow| error unless |needed=pool_size|.  Calling |do_compaction|
+with |needed=pool_size| supresses all overflow tests.
 
 The compaction process starts with |last_fixed_str| because all lower numbered
 strings are permanently allocated with |max_str_ref| in their |str_ref| entries.
@@ -1217,7 +1215,7 @@ while s<>str_ptr do
     after the end of the string@>;
   end;
 done: @<Move the current string back so that it starts at |p|@>;
-if needed>=0 then
+if needed<pool_size then
   @<Make sure that there is room for another string with |needed| characters@>;
 stat @<Account for the compaction and make sure the statistics agree with the
     global versions@>;
@@ -1627,7 +1625,7 @@ routines are the ones that limit lines to at most |max_print_line| characters.
 But we must make an exception for the \ps\ output file since it is not safe
 to cut up lines arbitrarily in \ps.
 
-Procedure |unit_str_room| needs to be declared |forward| here becuase it calls
+Procedure |unit_str_room| needs to be declared |forward| here because it calls
 |do_compaction| and |do_compaction| can call the error routines.  Actually,
 |unit_str_room| avoids |overflow| errors but it can call |confusion|.
 
@@ -3693,7 +3691,7 @@ else  begin q:=rover;
 @* \[11] Memory layout.
 Some areas of |mem| are dedicated to fixed usage, since static allocation is
 more efficient than dynamic allocation when we can get away with it. For
-example, locations |mem_min| to |mem_min+1| are always used to store a 
+example, locations |mem_min| to |mem_min+1| are always used to store a
 two-word dummy token whose second word is zero.
 The following macro definitions accomplish the static allocation by giving
 symbolic names to the fixed positions. Static variable-size nodes appear
@@ -4699,7 +4697,7 @@ since they are used in error recovery.
 @d frozen_end_group==hash_top+10
   {|hash| location of a permanent `\.{endgroup}'}
 @d frozen_etex==hash_top+11 {|hash| location of a permanent \&{etex}}
-@d frozen_mpx_break==hash_top+12 {|hash| location of a permanent \&{etex}}
+@d frozen_mpx_break==hash_top+12 {|hash| location of a permanent \&{mpxbreak}}
 @d frozen_bad_vardef==hash_top+13 {|hash| location of `\.{a bad variable}'}
 @d frozen_undefined==hash_top+14 {|hash| location that never gets defined}
 @d hash_end==hash_top+14 {the actual size of the |hash| and |eqtb| arrays}
@@ -7069,7 +7067,7 @@ begin x:=eval_cubic(p,q,t);
 @<Adjust |bbmin[c]| and |bbmax[c]| to accommodate |x|@>;
 del2:=t_of_the_way(del2)(del3);
   {now |0,del2,del3| represent the derivative on the remaining interval}
-if del2>0 then del2:=0; 
+if del2>0 then del2:=0;
 tt:=crossing_point(0,-del2,-del3);
 if tt<fraction_one then
   @<Test the second extreme against the bounding box@>;
@@ -7122,7 +7120,7 @@ This could be done via the theoretical error bound for Simpson's rule,
 but this is impractical because it requires an estimate of the fourth
 derivative of the quantity being integrated.  It is much easier to just perform
 a bisection step and see how much the arc length estimate changes.  Since the
-error for Simpson's rule is proportional to the forth power of the sample
+error for Simpson's rule is proportional to the fourth power of the sample
 spacing, the remaining error is typically about $1\over16$ of the amount of
 the change.  We say ``typically'' because the error has a pseudo-random behavior
 that could cause the two estimates to agree when each contain large errors.
@@ -7145,8 +7143,8 @@ function that finds the arc length of a cubic spline given $dz_0$, $dz_1$,
 $dz_2$. This |arc_test| routine also takes an arc length goal |a_goal| and
 returns the time when the arc length reaches |a_goal| if there is such a time.
 Thus the return value is either an arc length less than |a_goal| or, if the
-arc length would be at least |a_goal|, it returns a time value biased by
-|-two|.  This allows the caller to use the sign of the result to distinguish
+arc length would be at least |a_goal|, it returns a time value decreased by
+|two|.  This allows the caller to use the sign of the result to distinguish
 between arc lengths and time values.  On certain types of overflow, it is
 possible for |a_goal| and the result of |arc_test| both to be |el_gordo|.
 Otherwise, the result is always less than |a_goal|.
@@ -7495,7 +7493,7 @@ if arc>0 then
 
 @* \[20] Data structures for pens.
 A Pen in \MP\ can be either elliptical or polygonal.  Elliptical pens result
-in \ps\ \&{stroke} commands, while anything drawn with a polygonal pen is 
+in \ps\ \&{stroke} commands, while anything drawn with a polygonal pen is
 @:stroke}{\&{stroke} command@>
 converted into an area fill as described in the next part of this program.
 The mathematics behind this process is based on simple aspects of the theory
@@ -8107,7 +8105,7 @@ The |path_p| and |pen_p| pointers are replaced by a number that identifies
 the font and a string number that gives the text to be displayed.
 The |width|, |height|, and |depth| fields
 give the dimensions of the text at its design size, and the remaining six
-words give a transformation to be applied to the text.  The |new_tex_node|
+words give a transformation to be applied to the text.  The |new_text_node|
 function initializes everything to default values so that the text comes out
 black with its reference point at the origin.
 
@@ -8253,11 +8251,11 @@ field is needed to keep track of this.
 @d bbtype(#)==info(#+6)  {tells how bounding box data depends on \&{truecorners}}
 @d dummy_loc(#)==#+7  {where the object list begins in an edge header}
 @d no_bounds=0
-  {|bbytpe| value when bounding box data is valid for all \&{truecorners} values}
+  {|bbtype| value when bounding box data is valid for all \&{truecorners} values}
 @d bounds_set=1
-  {|bbytpe| value when bounding box data is for \&{truecorners}${}\le 0$}
+  {|bbtype| value when bounding box data is for \&{truecorners}${}\le 0$}
 @d bounds_unset=2
-  {|bbytpe| value when bounding box data is for \&{truecorners}${}>0$}
+  {|bbtype| value when bounding box data is for \&{truecorners}${}>0$}
 
 @p procedure init_bbox(@!h:pointer);
   {Initialize the bounding box information in edge structure |h|}
@@ -9426,7 +9424,7 @@ edges of the pen polygon.  We must be careful to turn clockwise only if
 this makes the turn less than $180^\circ$. (A $180^\circ$ turn must be
 counter-clockwise in order to make \&{doublepath} envelopes come out
 @:double_path_}{\&{doublepath} primitive@>
-right.) This code depends on |w0| being the offset for |(dxin,dyin)|.  
+right.) This code depends on |w0| being the offset for |(dxin,dyin)|.
 
 @<Update |info(p)| and find the offset $w_k$ such that...@>=
 turn_amt:=get_turn_amt(w0, dx, dy, ab_vs_cd(dy,dxin,dx,dyin)>=0);
@@ -12162,7 +12160,8 @@ string_class: if scanner_status=tex_flushing then goto switch
   else @<Get a string token and |return|@>;
 isolated_classes: begin k:=loc-1; goto found;
   end;
-invalid_class: @<Decry the invalid character and |goto restart|@>;
+invalid_class: if scanner_status=tex_flushing then goto switch
+  else @<Decry the invalid character and |goto restart|@>;
 othercases do_nothing {letters, etc.}
 endcases;@/
 k:=loc-1;
@@ -12257,7 +12256,7 @@ cur_cmd:=numeric_token; return
 @ @<Set |cur_mod:=n*unity+f| and check if it is uncomfortably large@>=
 begin cur_mod:=n*unity+f;
 if cur_mod>=fraction_one then
-  if internal[warning_check]>0 then
+  if (internal[warning_check]>0) and (scanner_status<>tex_flushing) then
     begin print_err("Number is too large (");
     print_scaled(cur_mod);
     print_char(")");
@@ -13992,19 +13991,19 @@ end;
 
 @<Declare subroutines for parsing file names@>=
 procedure end_name;
-var @!s:str_number; {the first new string created}
-begin s:=str_ptr;
-if area_delimiter<0 then cur_area:=""
+var a,@!n,@!e:pool_pointer; {length of area, name, and extension}
+begin e:=pool_ptr-str_start[str_ptr]; {total length}
+if ext_delimiter<0 then ext_delimiter:=e;
+a:=area_delimiter+1; n:=ext_delimiter-a; e:=e-ext_delimiter;
+if a=0 then cur_area:=""
 else begin cur_area:=make_string;
-  chop_last_string(str_start[s]+area_delimiter+1);
+  chop_last_string(str_start[cur_area]+a);
   end;
-if ext_delimiter<0 then
-  begin cur_ext:=""; cur_name:=make_string;
-  end
+if n=0 then cur_name:=""
 else begin cur_name:=make_string;
-  chop_last_string(str_start[s]+ext_delimiter);
-  cur_ext:=make_string;
+  chop_last_string(str_start[cur_name]+n);
   end;
+if e=0 then cur_ext:="" @+ else cur_ext:=make_string;
 end;
 
 @ Conversely, here is a routine that takes three strings and prints a file
@@ -14017,7 +14016,8 @@ procedure print_file_name(@!n,@!a,@!e:integer);
 begin print(a); print(n); print(e);
 end;
 
-@ Another system-dependent routine converts three internal \MP\ strings
+@ Another system-dependent routine is needed to convert three internal
+\MP\ strings
 to the |name_of_file| value that is used to open files. The present code
 allows both lowercase and uppercase letters in the file name.
 @^system dependencies@>
@@ -17679,7 +17679,7 @@ end;
 @ The simplest transformation procedure applies a transform to all
 coordinates of a path.  The |path_trans(c)(p)| macro applies
 a transformation defined by |cur_exp| and the transform operator |c|
-to the path or pen~|p|.
+to the path~|p|.
 
 @d path_trans(#)==begin set_up_known_trans(#); path_trans_end
 @d path_trans_end(#)==unstash_cur_exp(#); do_path_trans(cur_exp); end
@@ -20897,7 +20897,7 @@ begin n:=null_font;
 @<Open |tfm_infile| for input@>;
 @<Read data from |tfm_infile|; if there is no room, say so and |goto done|;
   otherwise |goto bad_tfm| or |goto done| as appropriate@>;
-bad_tfm:@<Complain the the \.{TFM} file is bad@>;
+bad_tfm:@<Complain that the \.{TFM} file is bad@>;
 done:if file_opened then b_close(tfm_infile);
 if n<>null_font then
   begin font_ps_name[n]:=fname;
@@ -20912,7 +20912,7 @@ precisely what is wrong if it does find a problem.  Programs called \.{TFtoPL}
 @.TFtoPL@> @.PLtoTF@>
 and \.{PLtoTF} can be used to debug \.{TFM} files.
 
-@<Complain the the \.{TFM} file is bad@>=
+@<Complain that the \.{TFM} file is bad@>=
 print_err("Font ");
 print(fname);
 if file_opened then print(" not usable: TFM file is bad")
@@ -20923,7 +20923,7 @@ help3("I wasn't able to read the size data for this font so this")@/
 if file_opened then
   help_line[0]:="is right, try asking an expert to fix the TFM file";
 error
-								
+
 @ @<Read data from |tfm_infile|; if there is no room, say so...@>=
 @<Read the \.{TFM} size fields@>;
 @<Use the size fields to allocate space in |font_info|@>;
@@ -21409,7 +21409,7 @@ parameters are given special values that are guaranteed not to match anything
 in the edge structure being shipped out.  On the other hand, the initial color
 should be black so that the translation of an all-black picture will have no
 \&{setcolor} commands.  (These would be undesirable in a font application.)
-Hence we use |c=0| in when initializing the graphics state and we use |c<0|
+Hence we use |c=0| when initializing the graphics state and we use |c<0|
 to recover from a situation where we have lost track of the graphics state.
 
 @<Declare the \ps\ output procedures@>=
@@ -21558,7 +21558,7 @@ if wy div ty>=wx div tx then
   end
 else begin ww:=wx; adj_wx:=true;
   end
- 
+
 @ This routine quickly tests if path |h| is ``essentially horizontal'' or
 ``essentially vertical,'' where |zoff| is |x_loc(0)| or |y_loc(0)| and |dz| is
 allowable range for $x$ or~$y$.  We do not need and cannot afford a full
@@ -21680,8 +21680,8 @@ var @!txx,@!txy,@!tyx,@!tyy:scaled; {transformation parameters}
 @!p:pointer; {the pen to stroke with}
 @!d1,@!det:scaled; {for tweaking transformation parameters}
 @!s:integer; {also for tweaking transformation paramters}
-@!transforming:boolean; {keeps track of whether gsave/grestore are needed}
-begin transforming:=false;@/
+@!transformed:boolean; {keeps track of whether gsave/grestore are needed}
+begin transformed:=false;@/
 @<Use |pen_p(h)| to set the transformation parameters and give the initial
   translation@>;
 @<Tweak the transformation parameters so the transformation is nonsingular@>;
@@ -21689,7 +21689,7 @@ ps_path_out(path_p(h));@/
 if fill_also then print_nl("gsave fill grestore");
 @<Issue \ps\ commands to transform the coordinate system@>;
 ps_print(" stroke");
-if transforming then ps_print(" grestore");
+if transformed then ps_print(" grestore");
 print_ln;
 end;
 
@@ -21707,11 +21707,11 @@ if (x_coord(p)<>0)or(y_coord(p)<>0) then
   tyx:=tyx-y_coord(p);@/
   txy:=txy-x_coord(p);
   tyy:=tyy-y_coord(p);
-  transforming:=true;
+  transformed:=true;
   end
 else print_nl("");
 @<Adjust the transformation to account for |gs_width| and output the
-  initial \&{gsave} if |transforming| should be |true|@>
+  initial \&{gsave} if |transformed| should be |true|@>
 
 @ @<Adjust the transformation to account for |gs_width| and output the...@>=
 if gs_width<>unity then
@@ -21724,9 +21724,9 @@ if gs_width<>unity then
     tyy:=make_scaled(tyy,gs_width);
     end;
 if (txy<>0)or(tyx<>0)or(txx<>unity)or(tyy<>unity) then
-  if (not transforming) then
+  if (not transformed) then
     begin ps_print("gsave ");
-    transforming:=true;
+    transformed:=true;
     end
 
 @ @<Issue \ps\ commands to transform the coordinate system@>=
@@ -21754,7 +21754,7 @@ The |aspect_bound*(gs_width+1)| bound on the components of the pen
 transformation allows $T_{\rm max}$ to be at most |2*aspect_bound|.
 
 @<Tweak the transformation parameters so the transformation is nonsingular@>=
-det:=takescaled(txx,tyy) - takescaled(txy,tyx);
+det:=take_scaled(txx,tyy) - take_scaled(txy,tyx);
 d1:=4*aspect_bound+1;
 if abs(det)<d1 then
   begin if det>=0 then
@@ -22105,7 +22105,7 @@ if (internal[prologues]>0) and (last_ps_fnum<last_fnum) then
 non_ps_setting:=selector; selector:=ps_file_only;@/
 @<Print the initial comment and give the bounding box for edge structure~|h|@>;
 if internal[prologues]>0 then @<Print the prologue@>;
-print("%%EndProlog"); 
+print("%%EndProlog");
 print_nl("%%Page: 1 1"); print_ln;
 @<Print any pending specials@>;
 unknown_graphics_state(0);
@@ -22129,18 +22129,27 @@ if internal[tracing_output]>0 then print_edges(h," (just shipped out)",true);
 end;
 
 @ These special comments described in the {\sl PostScript Language Reference
-Manual\/}, 2nd.~edition are understood by some \ps-reading programs.
-We can't normally output ``conforming'' PostScript because
+Manual}, 2nd.~edition are understood by some \ps-reading programs.
+We can't normally output ``conforming'' \ps\ because
 the structuring conventions don't allow us to say ``Please make sure the
-following characters are downloaded and define the `fshow' macro to access
+following characters are downloaded and define the \.{fshow} macro to access
 them.''
- 
+
+The exact bounding box is written out if |prologues<0|, although this
+is not standard \ps, since it allows \TeX\ to calculate the box dimensions
+accurately. (Overfull boxes are avoided if an illustration is made to
+match a given \.{\char`\\hsize}.)
+
 @<Print the initial comment and give the bounding box for edge...@>=
 print("%!PS");
 if internal[prologues]>0 then print("-Adobe-3.0 EPSF-3.0");
 print_nl("%%BoundingBox: ");
 set_bbox(h,true);
 if minx_val(h)>maxx_val(h) then print("0 0 0 0")
+else if internal[prologues]<0 then
+  begin ps_pair_out(minx_val(h),miny_val(h));
+  ps_pair_out(maxx_val(h),maxy_val(h));
+  end
 else begin ps_pair_out(floor_scaled(minx_val(h)),floor_scaled(miny_val(h)));
   ps_pair_out(-floor_scaled(-maxx_val(h)),-floor_scaled(-maxy_val(h)));
   end;
@@ -22260,7 +22269,7 @@ end
 
 @ The prologue defines \.{fshow} and corrects for the fact that \.{fshow}
 arguments use |font_name| instead of |font_ps_name|.  Downloaded bitmap fonts
-might not have reasonable |font_ps_name| entries, but we just charge ahead 
+might not have reasonable |font_ps_name| entries, but we just charge ahead
 anyway.  The user should not make \&{prologues} positive if this will cause
 trouble.
 @:prologues_}{\&{prologues} primitive@>
@@ -22510,7 +22519,7 @@ if x<>max_in_open then goto off_base
   dump_qqqq(w)
 
 @<Dump the string pool@>=
-do_compaction(-1);
+do_compaction(pool_size);
 dump_int(pool_ptr);
 dump_int(max_str_ptr);
 dump_int(str_ptr);

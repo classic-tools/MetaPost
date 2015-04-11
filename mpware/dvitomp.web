@@ -21,10 +21,11 @@
 
 % Version 0 was prepared (March 1990).
 % Version 0.1 implemented virtual fonts. (May 1990)
-% Version 0.30 outputs setbounds statments and ignores rules 1sp wide (May 1991)
+% Version 0.30 outputs setbounds statments, ignores rules 1sp wide (May 1991)
 % Version 0.60 outputs rules as penstrokes with butt ends
 % Version 0.62 makes the output more robust when used in a macro definition
-% Version 0.63 expands "//" in paths if this is enabled in site.h
+% Version 0.63 new version number only (Unix change file has // path searching)
+% Version 0.632 outputs a setbounds path even if no 1sp vrule appears (Jan 1997)
 
 % Although considerable effort has been expended to make the DVItoMP program
 % correct and reliable, no warranty is implied; the author disclaims any
@@ -58,7 +59,7 @@
   \vfill
   \centerline{\titlefont The {\ttitlefont DVItoMP} processor}
   \vskip 15pt
-  \centerline{(Version 0, March 1990)}
+  \centerline{(Version 0.632, January 1997)}
   \vfill}
 \pageno=\contentspagenumber \advance\pageno by 1
 
@@ -81,7 +82,7 @@ an ``\.{MPX}'' file.
 The |banner| string defined here should be changed whenever \.{DVItoMP}
 gets modified.
 
-@d banner=='% Written by DVItoMP, Version 0.63'
+@d banner=='% Written by DVItoMP, Version 0.632'
   {the first line of the output file}
 
 @ This program is written in standard \PASCAL, except where it is necessary
@@ -453,12 +454,12 @@ end;
 @#
 function open_tfm_file:boolean; {prepares to read packed bytes in |tfm_file|}
 begin reset(tfm_file,cur_name);
-return not eof(tfm_file);
+open_tfm_file:=(not eof(tfm_file));
 end;
 @#
 function open_vf_file:boolean; {prepares to read packed bytes in |vf_file|}
 begin reset(vf_file,cur_name);
-return not eof(vf_file);
+open_vf_file:=(not eof(vf_file));
 end;
 
 @ If you looked carefully at the preceding code, you probably asked,
@@ -576,7 +577,8 @@ else if buf_ptr=virtual_space then
   begin read(dvi_file,a); read(dvi_file,b);
   end
 else if buf_ptr+2>n_cmds then
-  abort('Error detected while interpretting a virtual font')
+  abort('Error detected while interpreting a virtual font')
+@.Error detected while...@>
 else begin a:=qo(cmd_buf[buf_ptr]);
   b:=qo(cmd_buf[buf_ptr+1]);
   buf_ptr:=buf_ptr+2;
@@ -590,7 +592,8 @@ else if buf_ptr=virtual_space then
   begin read(dvi_file,a); read(dvi_file,b); read(dvi_file,c);
   end
 else if buf_ptr+3>n_cmds then
-  abort('Error detected while interpretting a virtual font')
+  abort('Error detected while interpreting a virtual font')
+@.Error detected while...@>
 else begin a:=qo(cmd_buf[buf_ptr]);
   b:=qo(cmd_buf[buf_ptr+1]);
   c:=qo(cmd_buf[buf_ptr+2]);
@@ -605,7 +608,8 @@ else if buf_ptr=virtual_space then
   begin read(dvi_file,a); read(dvi_file,b); read(dvi_file,c); read(dvi_file,d);
   end
 else if buf_ptr+4>n_cmds then
-  abort('Error detected while interpretting a virtual font')
+  abort('Error detected while interpreting a virtual font')
+@.Error detected while...@>
 else begin a:=qo(cmd_buf[buf_ptr]);
   b:=qo(cmd_buf[buf_ptr+1]);
   c:=qo(cmd_buf[buf_ptr+2]);
@@ -646,7 +650,7 @@ If font~|f| is a virtual font, there is a list of \.{DVI} commands for each
 character.  These occupy consecutive positions in the |cmd_buf| array with
 the commands for character~|c| starting at
 |start_cmd(f)(c)=cmd_ptr[info_base[f]+c]| and ending just before
-|start_cmd(f)(c+1)|.  Font numbers used when interpretting these \.{DVI}
+|start_cmd(f)(c+1)|.  Font numbers used when interpreting these \.{DVI}
 commands occupy positions |fbase[f]| through |ftop[f]-1| in the |font_num|
 table and the |internal_num| array gives the corresponding internal font
 numbers.
@@ -742,7 +746,7 @@ var @!i:integer; {index into |font_num| and |internal_num|}
 begin if nf=max_fonts then abort('DVItoMP capacity exceeded (max fonts=',
     max_fonts:1,')!');
 @.DVItoMP capacity exceeded...@>
-@<allocate an index |i| into the |font_num| and |internal_num| tables@>;
+@<Allocate an index |i| into the |font_num| and |internal_num| tables@>;
 @<Read the font parameters into position for font |nf|@>;
 internal_num[i]:=match_font(nf,true);
 if internal_num[i]=nf then
@@ -751,7 +755,7 @@ if internal_num[i]=nf then
   end;
 end;
 
-@ @<allocate an index |i| into the |font_num| and |internal_num| tables@>=
+@ @<Allocate an index |i| into the |font_num| and |internal_num| tables@>=
 if vf_ptr=nf then abort('DVItoMP capacity exceeded (max font numbers=',
     max_fnums:1,')');
 @.DVItoMP capacity exceeded...@>
@@ -918,7 +922,7 @@ for k:=0 to nw-1 do
 later.  It is equal to one when not typesetting a character from a virtual
 font.  In that case, the following expressions do the width computation that is
 so important in \.{DVItype}.  It is less important here because it is impractical
-to guarantee precise character positioning in MetaPost output.  Nevertheless, the
+to guarantee precise character positioning in \MP\ output.  Nevertheless, the
 width compution will be precise if reals have at least 46-bit mantissas and
 |round(x-.5)| is equivalent to $\lfloor x\rfloor$.  It may be a good idea to
 modify this computation if these conditions are not met.
@@ -1338,7 +1342,7 @@ begin if wd=1 then @<Handle a special rule that determines the box size@>
 else if (ht>0)or(wd>0) then
   begin if str_f>=0 then finish_last_char;
   if not rules_used then
-    begin rules_used:=true;
+    begin rules_used:=true;@/
     print_ln('interim linecap:=0;');@/
     print_ln('vardef _r(expr _a,_w) =');
     print_ln('  addto _p doublepath _a withpen pencircle scaled _w enddef;');
@@ -1377,13 +1381,10 @@ the user tries to typeset his own one-dvi-unit rules.  In this case the
 dimension-determining rule is the last one in the picture.
 
 @<Handle a special rule that determines the box size@>=
-begin spec_rule_seen:=true;@/
-pic_wd:=h; pic_dp:=v; pic_ht:=ht-v;
+begin pic_wd:=h; pic_dp:=v; pic_ht:=ht-v;
 end
 
 @ @<Glob...@>=
-spec_rule_seen: boolean;
-  {whether a special dimensioning rule has appeared in this picture}
 pic_dp, pic_ht, pic_wd: integer; {picture dimensions from special rule}
 
 @ The following  initialization and clean-up is required.  We do a little more
@@ -1393,7 +1394,6 @@ if the variables are uninitialized when |do_set_char| tests them.
 @p procedure start_picture;
 begin fonts_used:=false;
 rules_used:=false;
-spec_rule_seen:=false;
 str_f:=-1;@/
 str_v:=0; str_h2:=0; str_scale:=1.0; {values don't matter}
 print_ln('begingroup save _p,_r,_s,_n; picture _p; _p=nullpicture;');
@@ -1402,17 +1402,15 @@ end;
 procedure stop_picture;
 var @!w,@!h,@!dd:real; {width, height, negative depth in PostScript points}
 begin if str_f>=0 then finish_last_char;
-if spec_rule_seen then
-  @<Print a \&{setbounds} command based on picture dimensions@>;
+@<Print a \&{setbounds} command based on picture dimensions@>;
 print_ln('_p endgroup');
 end;
 
 @ @<Print a \&{setbounds} command based on picture dimensions@>=
-begin dd:=-pic_dp*conv;
+dd:=-pic_dp*conv;
 w:=conv*pic_wd; h:=conv*pic_ht;@/
 print_ln('setbounds _p to (0,',dd:1:4,')--(',w:1:4,',',dd:1:4,')--');
-print_ln(' (',w:1:4,',',h:1:4,')--(0,',h:1:4,')--cycle;');
-end
+print_ln(' (',w:1:4,',',h:1:4,')--(0,',h:1:4,')--cycle;')
 
 @* Translation to symbolic form.
 The main work of \.{DVItoMP} is accomplished by the |do_dvi_commands|
@@ -1463,6 +1461,7 @@ end;
 
 @ We need to define the |set_virtual_char| procedure now because it is
 mutually recursive with |do_dvi_commands|.  This is really a supervisory
+@^recursion@>
 procedure that calls |do_set_char| or adjusts the input source to read
 typesetting commands for a character in a virtual font.
 

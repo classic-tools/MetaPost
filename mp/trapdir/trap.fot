@@ -32,7 +32,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 2147&536 (39 still untouched)
-String usage 73&277 (1110&5374 now untouched)
+String usage 73&277 (1110&5373 now untouched)
 {[repeat the loop]}
 >> bye
 ! Isolated expression.

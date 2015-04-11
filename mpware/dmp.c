@@ -60,7 +60,7 @@ extern void pathexpand();	/* defined in ../mp/pathexp.c */
 #define PI  3.14159265358979323846
 #endif
 
-#define POOLMAX	5000	/* total characters in all font and char names */
+#define POOLMAX	65000	/* total characters in all font and char names */
 #define FCOUNT	100	/* maximum number of fonts */
 #define SHIFTS	100	/* maximum number of characters with special shifts */
 #define line_length 79	/* maximum output line length (must be at least 60) */
