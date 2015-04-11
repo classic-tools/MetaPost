@@ -240,19 +240,19 @@ vardef sizecirc_(suffix $) =
       if unknown($dy-$dx): a_+$dx=b_+$dy; fi
       if a_+$dx=b_+$dy: a_+$dx = a_++b_ + circmargin;
       else: $dx =
-        pathsel_(max(a_,b_+$dx-$dy), (a_+d,0){up}...(0,b_+d+$dy-$dx){left});
+        pathsel_(max(a_,b_+$dx-$dy), (a_+d_,0){up}...(0,b_+d_+$dy-$dx){left});
       fi
-    else: $dx = pathsel_(a_, (a_+d,0){up}...(0,b_+$dy){left});
+    else: $dx = pathsel_(a_, (a_+d_,0){up}...(0,b_+$dy){left});
     fi
   elseif unknown $dy:
-    $dy = pathsel_(b_, (a_+$dx,0){up}...(0,b_+d){left});
+    $dy = pathsel_(b_, (a_+$dx,0){up}...(0,b_+d_){left});
   fi
 enddef;
 
 vardef pathsel_(expr dhi)(text tt) =
   save f_, p_; path p_;
   p_ = origin..(a_,b_)+circmargin*unitvector(a_,b_);
-  vardef f_(expr d) =
+  vardef f_(expr d_) =
     xpart((tt) intersectiontimes p_) >= 0
   enddef;
   solve f_(0,dhi+1.5circmargin)

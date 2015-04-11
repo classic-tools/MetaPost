@@ -207,6 +207,15 @@ in place of the line number.
 .TP
 .B TEXVFONTS
 Search path for virtual fonts.
+.TP
+.B MPTEXPRE
+Name of a file that is prepended before running tex.
+If this file exists,
+.I mp
+behaves as if the file were inside of a
+.L verbatimtex
+block at the beginning of each input file.  Default:
+.L mptexpre.tex
 .PD
 .PP
 A

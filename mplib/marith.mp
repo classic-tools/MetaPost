@@ -139,7 +139,7 @@ secondarydef a Msub b = a Madd (b-epsilon) enddef;
 tertiarydef a Mleq b =
   (if a=Mabs a:
     if b=Mabs b: a<=b else: false fi
-   elseif b=Mabs b: true : b<=a fi
+   elseif b=Mabs b: true else: b<=a fi
   )
 enddef;
 

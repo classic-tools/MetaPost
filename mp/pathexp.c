@@ -211,6 +211,7 @@ int expand_dblslash(buf, slash, tail, lim, tailp)
 		r = expand_dblslash(buf, tt-1, tail, lim, &t);
 		if (r != -1) {
 			*tailp = t;
+			closedir(dirp);
 			return (r<0) ? -1 : r;
 		}
 	}

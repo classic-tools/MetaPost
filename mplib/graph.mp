@@ -61,10 +61,10 @@ enddef;
 
 def begingraph(expr w, h) =
   begingroup
-  save X_, Y_, Gfin_, Gcur_, Gcbb_, Gneedgr_, Gneedfr_;
+  save X_, Y_, Gfin_, Gcur_, Gcbb_, Gneedgr_, Gneedfr_, Gdidsc_;
   save Gdpic_, Gppic_, Ggl_, Garw_;
   picture Gfin_, Gcur_, Gcbb_, Gdpic_, Gppic_, Ggl_[];
-  boolean Gneedgr_, Gneedfr_;
+  boolean Gneedgr_, Gneedfr_, Gdidsc_;
   Gfin_ = nullpicture;          % the finished part of the graph
   Gcur_ = nullpicture;          % what has been drawn in current coords
   Gcbb_ = nullpicture;          % picture whose bbox is Gcur_'s w/ linewidths 0
@@ -73,6 +73,7 @@ def begingraph(expr w, h) =
   X_.sc = Y_.sc = 0;            % Mlog(the amount Gcur_ has been descaled by)
   Gneedgr_ = true;              % whether autogrid is needed
   Gneedfr_ = true;              % whether frame needs to be drawn
+  Gdidsc_ = false;              % set when Glinsc_ rescales coordinates
   Gdpic_ = nullpicture;         % result of last gdraw or gfill
   Garw_ = 0;                    % number of arrowheads for next gdraw
 enddef;
@@ -205,6 +206,7 @@ vardef Glinsc_@#(expr u)(text cc) =
     if known @#.$: @#.$:=@#.$*v/128; fi
   endfor
   @#sc:= Mabs u -1115.72742;  % @#sc:=Mabs u+Mlog(128)-4Mten
+  Gdidsc_ := true;
 enddef;
 
 
@@ -272,17 +274,23 @@ enddef;
 vardef Gscan_(expr p, c)(suffix tx, ty) =
   if (str tx="") and (str ty=""):  p
   else:
-    Gpp_(point 0 of p, tx, ty)
-    if path p:
-      for t=1 upto length p:
-        if c: --
-        else: ..controls Gpp_(postcontrol(t-1) of p, tx, ty)
-          and Gpp_(precontrol t of p, tx, ty) ..
-        fi
-        Gpp_(point t of p, tx, ty)
-      endfor
-      if cycle p: &cycle fi
-    fi
+    save r_; path r_;
+    forever:
+      Gdidsc_ := false;
+      r_ := Gpp_(point 0 of p, tx, ty)
+      if path p:
+        for t=1 upto length p:
+          if c: --
+          else: ..controls Gpp_(postcontrol(t-1) of p, tx, ty)
+            and Gpp_(precontrol t of p, tx, ty) ..
+          fi
+          Gpp_(point t of p, tx, ty)
+        endfor
+        if cycle p: &cycle fi
+      fi;
+      exitunless Gdidsc_;
+    endfor
+    if pair p: point 0 of fi r_
   fi
 enddef;
 vardef Gpp_(expr p)(suffix tx, ty) = (tx xpart p, ty ypart p) enddef;

@@ -1,4 +1,4 @@
-This is MetaPost, C Version 0.63 (preloaded mem=trap 95.4.5)  5 APR 1995 06:18
+This is MetaPost, C Version 0.631 (preloaded mem=trap 95.10.18)  18 OCT 1995 21:50
 ** &trap  trap
 (trap.mp
 {if}
@@ -1619,7 +1619,7 @@ End edges
 {(unknown picture e3)=(picture)}
 {showstats}
 Memory usage 1178&115 (2344 still untouched)
-String usage 22&84 (1244&9178 now untouched)
+String usage 22&84 (1244&9176 now untouched)
 {addto}
 Path at line 81, before choices:
 (0.5,0){curl 1}
@@ -3507,7 +3507,7 @@ End edges
 
 {showstats}
 Memory usage 3017&264 (273 still untouched)
-String usage 68&249 (1155&8795 now untouched)
+String usage 68&249 (1155&8793 now untouched)
 {("curb")infont("trapf")}
 Missing character: There is no c in font trapf!
 {-(0.5)}
@@ -3518,7 +3518,7 @@ Missing character: There is no c in font trapf!
 {e5:=picture}
 {showstats}
 Memory usage 2267&264 (273 still untouched)
-String usage 66&241 (1154&8791 now untouched)
+String usage 66&241 (1154&8789 now untouched)
 {show}
 {pencircle}
 {((0,0))penoffset(pen)}
@@ -4376,13 +4376,13 @@ But don't worry; continue and I'll just ignore it.
 >> (0,-2.5)
 {showstats}
 Memory usage 2744&607 (39 still untouched)
-String usage 73&279 (1138&8718 now untouched)
+String usage 73&279 (1138&8716 now untouched)
 {let}
 {showtoken}
 > f=tag
 {showstats}
 Memory usage 2704&536 (39 still untouched)
-String usage 73&279 (1138&8718 now untouched)
+String usage 73&279 (1138&8716 now untouched)
 {nullpicture}
 {(unknown picture e17)=(picture)}
 {addto}
@@ -4671,7 +4671,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 2147&536 (39 still untouched)
-String usage 73&277 (1110&5374 now untouched)
+String usage 73&277 (1110&5372 now untouched)
 {[repeat the loop]}
 >> bye
 ! Isolated expression.
@@ -4737,7 +4737,7 @@ by `endgroup'. So I've inserted `endgroup' now.
 (end occurred when elseif on line 22 was incomplete) 
 Here is how much of MetaPost's memory you used:
  75 strings out of 1277
- 768 string characters out of 9331
+ 768 string characters out of 9329
  4462 words of memory out of 4501
  337 symbolic tokens out of 2100
  8i,35n,8p,167b stack positions out of 30i,100n,150p,500b

@@ -32,6 +32,12 @@ then
 	;;
     esac
 
+    if test -r ${MPTEXPRE:-mptexpre.tex}
+    then
+	cat ${MPTEXPRE:-mptexpre.tex} mpx$$.tex >mpx$$.tmp
+	mv mpx$$.tmp mpx$$.tex
+    fi
+
     $DOTEX '\batchmode\input 'mpx$$ >/dev/null
     case $? in
     0)	;;

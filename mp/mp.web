@@ -116,7 +116,7 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner=='This is MetaPost, Version 0.63' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.631' {printed when \MP\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -1692,7 +1692,7 @@ may not be visible ASCII codes. In that case |slow_print| is used.
 @<Basic print...@>=
 procedure slow_print(@!s:integer); {prints string |s|}
 var @!j:pool_pointer; {current character code position}
-begin if (s<0)or(s>=max_str_ptr) then s:="???"; {this can't happen}
+begin if (s<0)or(s>max_str_ptr) then s:="???"; {this can't happen}
 @.???@>
 j:=str_start[s];
 while j<str_stop(s) do
@@ -5099,7 +5099,7 @@ else  begin r:=info(p);
     else print(" IMPOSSIBLE")
 @.IMPOSSIBLE@>
   else  begin r:=text(r);
-    if (r<0)or(r>=max_str_ptr) then print(" NONEXISTENT")
+    if (r<0)or(r>max_str_ptr) then print(" NONEXISTENT")
 @.NONEXISTENT@>
     else @<Print string |r| as a symbolic token
       and set |c| to its class@>;

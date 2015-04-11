@@ -1,4 +1,12 @@
 ----------------------------------------------------------------------
+Version 0.631:
+----------------------------------------------------------------------
+This version fixes an obscure bug that could cause certain perfectly valid
+strings to be printed as "???" or " NONEXISTENT".  It also includes a minor
+fix to the PATHEXPAND code that prevents running out of file descriptors.
+
+
+----------------------------------------------------------------------
 What is new in Version 0.63:
 ----------------------------------------------------------------------
 1. Backslashes in the PostScript output are rendered correctly.  They used
