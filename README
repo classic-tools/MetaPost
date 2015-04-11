@@ -95,10 +95,13 @@ Bug reports are welcome, but the author does not make any specific promises
 to fix them.
 
   John Hobby
-  hobby@research.att.com
+  hobby@research.bell-labs.com
 
                             Installation
 
+-1.The installation process described below is considerably more difficult
+   than it could be.  MetaPost has been integrated into many popular TeX
+   distributions, and most people should be using one of them instead.
 0. Some parts of the code in mp/mp.web indexed under `system dependencies'.
    This distribution should contain everything necessary to make these
    parts of the program work on UNIX systems, but this is a good place

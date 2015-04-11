@@ -38,7 +38,7 @@ connection with the use or performance of this software.
    The |banner| string defined here should be changed whenever this program
    gets modified.
 */
-char *banner="% Written by DMP, Version 0.63";	/* first line of output */
+char *banner="% Written by DMP, Version 0.64";	/* first line of output */
 
 
 #include <stdio.h>

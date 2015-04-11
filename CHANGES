@@ -1,4 +1,41 @@
 ----------------------------------------------------------------------
+What is new in Version 0.64:
+----------------------------------------------------------------------
+1. A new primitive command  closefrom filename  closes a readfrom file
+   so that subsequent calls to readfrom with that file name will go back
+   to the beginning of the file.
+2. The ^^ notation for unprintable characters is now used only when printing
+   on the terminal or the log file.  Internal computations and the write
+   command are all 8-bit clean.  (This is partly due to material in mp.ch
+   that changes the initialization of the xchr array.  Without these
+   system-dependent changes, the write command would map all non-ascii
+   characters to spaces.)
+3. Arithmetic overflow during a comparison such as  20000>-20000 is now
+   ignored.  This avoids extraneous error message when using the graph.mp
+   macro package.
+4. Transformations with negative determinants now work properly on pictures
+   drawn with polygonal pens.
+5. When the readfrom operator is applied to a file that does not exist,
+   an attempt to close a non-open file could cause problems in some
+   implementations.  This has now been fixed.
+6. Using  draw picture_expression withpen  where the picture_expression
+   was a scaled picture containing dashed lines, the dash lengths would
+   change.  This bug has been fixed.
+7. The dashpart operator could return an invalid picture or a picture that
+   is not properly scaled.  This has also been fixed.
+8. The |char_base| variable could become negative when using fonts that
+   do not start at character 0.  There was also bad Pascal code in function
+   b_open_in.  This has all been fixed.
+9. Dvitomp has been fixed to avoid a font data structure problem that
+   could cause some characters to come out in the wrong font when you
+   mix virtual and non-virtual fonts.
+10. Dvitomp now correctly prints font names when there is a checksum
+   mismatch, and it aborts instead of just printing an error if a tfm
+   or vf file is bad.
+11. In plain.mp, the drawdblarrow macro now uses filldraw so that it works
+   better with large pen sizes.
+
+----------------------------------------------------------------------
 Version 0.632:
 ----------------------------------------------------------------------
 When prologues is negative, the output files use full precision for

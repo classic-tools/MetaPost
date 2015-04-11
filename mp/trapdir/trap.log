@@ -1,4 +1,4 @@
-This is MetaPost, C Version 0.632 (preloaded mem=trap 97.1.24)  24 JAN 1997 11:13
+This is MetaPost, C Version 0.64 (preloaded mem=trap 98.1.28)  28 JAN 1998 11:18
 ** &trap  trap
 (trap.mp
 {if}
@@ -1619,7 +1619,7 @@ End edges
 {(unknown picture e3)=(picture)}
 {showstats}
 Memory usage 1178&115 (2344 still untouched)
-String usage 22&84 (1244&9177 now untouched)
+String usage 22&84 (1245&9620 now untouched)
 {addto}
 Path at line 81, before choices:
 (0.5,0){curl 1}
@@ -2662,7 +2662,7 @@ You might want to delete some tokens before continuing.
 Filled pen stroke :
 (10.5,-1.5)..controls (13,-4) and (15.5,-6.5)
  ..(18,-9)
-dashed (on 3 off 0) shifted 0
+dashed (on 0 off 0) shifted 0
 butt ends, mitered joins limited 1 with pen
 pencircle transformed (0,0,0,0,0,0)
 Filled pen stroke :
@@ -3507,7 +3507,7 @@ End edges
 
 {showstats}
 Memory usage 3017&264 (273 still untouched)
-String usage 68&249 (1155&8794 now untouched)
+String usage 68&249 (1156&9237 now untouched)
 {("curb")infont("trapf")}
 Missing character: There is no c in font trapf!
 {-(0.5)}
@@ -3518,7 +3518,7 @@ Missing character: There is no c in font trapf!
 {e5:=picture}
 {showstats}
 Memory usage 2267&264 (273 still untouched)
-String usage 66&241 (1154&8790 now untouched)
+String usage 66&241 (1155&9233 now untouched)
 {show}
 {pencircle}
 {((0,0))penoffset(pen)}
@@ -4376,13 +4376,13 @@ But don't worry; continue and I'll just ignore it.
 >> (0,-2.5)
 {showstats}
 Memory usage 2744&607 (39 still untouched)
-String usage 73&279 (1138&8717 now untouched)
+String usage 73&279 (1139&9160 now untouched)
 {let}
 {showtoken}
 > f=tag
 {showstats}
 Memory usage 2704&536 (39 still untouched)
-String usage 73&279 (1138&8717 now untouched)
+String usage 73&279 (1139&9160 now untouched)
 {nullpicture}
 {(unknown picture e17)=(picture)}
 {addto}
@@ -4671,7 +4671,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 2147&536 (39 still untouched)
-String usage 73&277 (1110&5373 now untouched)
+String usage 73&277 (1112&5817 now untouched)
 {[repeat the loop]}
 >> bye
 ! Isolated expression.
@@ -4736,10 +4736,10 @@ by `endgroup'. So I've inserted `endgroup' now.
 (end occurred when if on line 37 was incomplete)
 (end occurred when elseif on line 22 was incomplete) 
 Here is how much of MetaPost's memory you used:
- 75 strings out of 1277
- 768 string characters out of 9330
+ 75 strings out of 1276
+ 768 string characters out of 9771
  4462 words of memory out of 4501
- 337 symbolic tokens out of 2100
+ 338 symbolic tokens out of 2100
  8i,35n,8p,167b stack positions out of 30i,100n,150p,500b
  0 string compactions (moved 0 characters, 0 strings)
 

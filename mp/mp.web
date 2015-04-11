@@ -116,7 +116,7 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner=='This is MetaPost, Version 0.632' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.64' {printed when \MP\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -736,7 +736,7 @@ end;
 @#
 function b_open_in(var @!f:byte_file):boolean;
   {open a binary file for input}
-begin rewrite(f,name_of_file,'/O'); b_open_in:=rewrite_OK(f);
+begin reset(f,name_of_file,'/O'); b_open_in:=reset_OK(f);
 end;
 @#
 function b_open_out(var @!f:byte_file):boolean;
@@ -1395,19 +1395,11 @@ fixed_str_use:=str_ptr;
 exit:end;
 tini
 
-@ @d app_lc_hex(#)==l:=#;
-  if l<10 then append_char(l+"0")@+else append_char(l-10+"a")
+@ The first 256 strings will consist of a single character only.
 
 @<Make the first 256...@>=
 for k:=0 to 255 do
-  begin if (@<Character |k| cannot be printed@>) then
-    begin append_char("^"); append_char("^");
-    if k<@'100 then append_char(k+@'100)
-    else if k<@'200 then append_char(k-@'100)
-    else begin app_lc_hex(k div 16); app_lc_hex(k mod 16);
-      end;
-    end
-  else append_char(k);
+  begin append_char(k);
   g:=make_string; str_ref[g]:=max_str_ref;
   end;
 
@@ -1415,8 +1407,8 @@ for k:=0 to 255 do
 other 33 characters will be printed in three-symbol form like `\.{\^\^A}'
 unless a system-dependent change is made here. Installations that have
 an extended character set, where for example |xchr[@'32]=@t\.{\'^^Z\'}@>|,
-would like string @'32 to be the single character @'32 instead of the
-three characters @'136, @'136, @'132 (\.{\^\^Z}). On the other hand,
+would like string @'32 to be printed as the single character @'32 instead
+of the three characters @'136, @'136, @'132 (\.{\^\^Z}). On the other hand,
 even people with an extended character set will want to represent string
 @'15 by \.{\^\^M}, since @'15 is ASCII's ``carriage return'' code; the idea is
 to produce visible strings instead of tabs or line-feeds or carriage-returns
@@ -1543,7 +1535,8 @@ values:
 numeric codes that satisfy the convenient relations |no_print+1=term_only|,
 |no_print+2=log_only|, |term_only+2=log_only+1=term_and_log|.  These
 relations are not used when |selector| could be |pseudo|, |new_string|,
-or |ps_file_only|.
+or |ps_file_only|.  We need not check for unprintable characters when
+|selector<pseudo|.
 
 Four additional global variables, |tally|, |term_offset|, |file_offset|,
 and |ps_offset| record the number of characters that have been printed
@@ -1553,14 +1546,14 @@ the length of (possibly very long) stretches of printing; |term_offset|,
 characters have appeared so far on the current line that has been output
 to the terminal, the transcript file, or the \ps\ output file, respectively.
 
-@d no_print=max_write_files {|selector| setting that makes data disappear}
-@d term_only=no_print+1 {printing is destined for the terminal only}
-@d log_only=no_print+2 {printing is destined for the transcript file only}
-@d term_and_log=no_print+3 {normal |selector| setting}
-@d ps_file_only=no_print+4 {printing goes to the \ps\ output file}
-@d pseudo=no_print+5 {special |selector| setting for |show_context|}
-@d new_string=no_print+6 {printing is deflected to the string pool}
-@d max_selector=new_string {highest selector setting}
+@d new_string=max_write_files {printing is deflected to the string pool}
+@d ps_file_only=new_string+1 {printing goes to the \ps\ output file}
+@d pseudo=new_string+2 {special |selector| setting for |show_context|}
+@d no_print=new_string+3 {|selector| setting that makes data disappear}
+@d term_only=new_string+4 {printing is destined for the terminal only}
+@d log_only=new_string+5 {printing is destined for the transcript file only}
+@d term_and_log=new_string+6 {normal |selector| setting}
+@d max_selector=term_and_log {highest selector setting}
 
 @<Glob...@>=
 @!log_file : alpha_file; {transcript of \MP\ session}
@@ -1618,9 +1611,11 @@ othercases write_ln(wr_file[selector])
 endcases;
 end; {note that |tally| is not affected}
 
-@ The |print_char| procedure sends one character to the desired destination,
-using the |xchr| array to map it into an external character compatible with
-|input_ln|. All printing comes through |print_ln| or |print_char|, hence these
+@ The |print_visible_char| procedure sends one character to the desired
+destination, using the |xchr| array to map it into an external character
+compatible with |input_ln|.  (It assumes that it is always called with
+a visible ASCII character.)  All printing comes through |print_ln| or
+|print_char|, which ultimately calls |print_visible_char|, hence these
 routines are the ones that limit lines to at most |max_print_line| characters.
 But we must make an exception for the \ps\ output file since it is not safe
 to cut up lines arbitrarily in \ps.
@@ -1631,7 +1626,7 @@ Procedure |unit_str_room| needs to be declared |forward| here because it calls
 
 @<Basic printing...@>=
 procedure@?unit_str_room; forward;@t\2@>@/
-procedure print_char(@!s:ASCII_code); {prints a single character}
+procedure print_visible_char(@!s:ASCII_code); {prints a single character}
 label done;
 begin case selector of
 term_and_log: begin wterm(xchr[s]); wlog(xchr[s]);
@@ -1665,6 +1660,33 @@ endcases;
 done:incr(tally);
 end;
 
+@ The |print_char| procedure sends one character to the desired destination.
+File names and string expressions might contain |ASCII_code| values that
+can't be printed using |print_visible_char|.  These characters will be
+printed in three- or four-symbol form like `\.{\^\^A}' or `\.{\^\^e4}'.
+(This procedure assumes that it is safe to bypass all checks for unprintable
+characters when |selector| is in the range |0..max_write_files-1| or when
+|selector=ps_file_only|.  In the former case the user might want to write
+unprintable characters, and in the latter case the \ps\ printing routines
+check their arguments themselves before calling |print_char| or |print|.)
+
+@d print_lc_hex(#)==l:=#;
+  if l<10 then print_visible_char(l+"0")@+else print_visible_char(l-10+"a")
+
+@<Basic printing...@>=
+procedure print_char(@!k:ASCII_code); {prints a single character}
+var l:0..255; {small index or counter}
+begin if selector<pseudo then print_visible_char(k)
+else if @<Character |k| cannot be printed@> then
+  begin print_visible_char("^"); print_visible_char("^");
+  if k<@'100 then print_visible_char(k+@'100)
+  else if k<@'200 then print_visible_char(k-@'100)
+  else begin print_lc_hex(k div 16);  print_lc_hex(k mod 16);
+    end;
+  end
+else print_visible_char(k);
+end;
+
 @ An entire string is output by calling |print|. Note that if we are outputting
 the single standard ASCII character \.c, we could call |print("c")|, since
 |"c"=99| is the number of a single-character string, as explained above. But
@@ -1681,20 +1703,6 @@ begin if (s<0)or(s>max_str_ptr) then s:="???"; {this can't happen}
 j:=str_start[s];
 while j<str_stop(s) do
   begin print_char(so(str_pool[j])); incr(j);
-  end;
-end;
-
-@ Sometimes it's necessary to print a string whose characters
-may not be visible ASCII codes. In that case |slow_print| is used.
-
-@<Basic print...@>=
-procedure slow_print(@!s:integer); {prints string |s|}
-var @!j:pool_pointer; {current character code position}
-begin if (s<0)or(s>max_str_ptr) then s:="???"; {this can't happen}
-@.???@>
-j:=str_start[s];
-while j<str_stop(s) do
-  begin print(so(str_pool[j])); incr(j);
   end;
 end;
 
@@ -4156,7 +4164,7 @@ For example, `\.*' has the command code |primary_binary|, and its
 secondary identification is |times|. The secondary codes start at 30 so that
 they don't overlap with the type codes; some type codes (e.g., |string_type|)
 are used as operators as well as type identifications.  The relative values
-are not critical, except for |true_code..false_code|, |or_code..and_code|,
+are not critical, except for |true_code..false_code|, |or_op..and_op|,
 and |filled_op..bounded_op|.  The restrictions are that
 |and_op-false_code=or_op-true_code|, that the ordering of
 |x_part...blue_part| must match that of |x_part_sector..blue_part_sector|,
@@ -4172,90 +4180,91 @@ values they test for.
 @d pen_circle=36 {operation code for \.{pencircle}}
 @d normal_deviate=37 {operation code for \.{normaldeviate}}
 @d read_from_op=38 {operation code for \.{readfrom}}
-@d odd_op=39 {operation code for \.{odd}}
-@d known_op=40 {operation code for \.{known}}
-@d unknown_op=41 {operation code for \.{unknown}}
-@d not_op=42 {operation code for \.{not}}
-@d decimal=43 {operation code for \.{decimal}}
-@d reverse=44 {operation code for \.{reverse}}
-@d make_path_op=45 {operation code for \.{makepath}}
-@d make_pen_op=46 {operation code for \.{makepen}}
-@d oct_op=47 {operation code for \.{oct}}
-@d hex_op=48 {operation code for \.{hex}}
-@d ASCII_op=49 {operation code for \.{ASCII}}
-@d char_op=50 {operation code for \.{char}}
-@d length_op=51 {operation code for \.{length}}
-@d turning_op=52 {operation code for \.{turningnumber}}
-@d x_part=53 {operation code for \.{xpart}}
-@d y_part=54 {operation code for \.{ypart}}
-@d xx_part=55 {operation code for \.{xxpart}}
-@d xy_part=56 {operation code for \.{xypart}}
-@d yx_part=57 {operation code for \.{yxpart}}
-@d yy_part=58 {operation code for \.{yypart}}
-@d red_part=59 {operation code for \.{redpart}}
-@d green_part=60 {operation code for \.{greenpart}}
-@d blue_part=61 {operation code for \.{bluepart}}
-@d font_part=62 {operation code for \.{fontpart}}
-@d text_part=63 {operation code for \.{textpart}}
-@d path_part=64 {operation code for \.{pathpart}}
-@d pen_part=65 {operation code for \.{penpart}}
-@d dash_part=66 {operation code for \.{dashpart}}
-@d sqrt_op=67 {operation code for \.{sqrt}}
-@d m_exp_op=68 {operation code for \.{mexp}}
-@d m_log_op=69 {operation code for \.{mlog}}
-@d sin_d_op=70 {operation code for \.{sind}}
-@d cos_d_op=71 {operation code for \.{cosd}}
-@d floor_op=72 {operation code for \.{floor}}
-@d uniform_deviate=73 {operation code for \.{uniformdeviate}}
-@d char_exists_op=74 {operation code for \.{charexists}}
-@d font_size=75 {operation code for \.{fontsize}}
-@d ll_corner_op=76 {operation code for \.{llcorner}}
-@d lr_corner_op=77 {operation code for \.{lrcorner}}
-@d ul_corner_op=78 {operation code for \.{ulcorner}}
-@d ur_corner_op=79 {operation code for \.{urcorner}}
-@d arc_length=80 {operation code for \.{arclength}}
-@d angle_op=81 {operation code for \.{angle}}
-@d cycle_op=82 {operation code for \.{cycle}}
-@d filled_op=83 {operation code for \.{filled}}
-@d stroked_op=84 {operation code for \.{stroked}}
-@d textual_op=85 {operation code for \.{textual}}
-@d clipped_op=86 {operation code for \.{clipped}}
-@d bounded_op=87 {operation code for \.{bounded}}
-@d plus=88 {operation code for \.+}
-@d minus=89 {operation code for \.-}
-@d times=90 {operation code for \.*}
-@d over=91 {operation code for \./}
-@d pythag_add=92 {operation code for \.{++}}
-@d pythag_sub=93 {operation code for \.{+-+}}
-@d or_op=94 {operation code for \.{or}}
-@d and_op=95 {operation code for \.{and}}
-@d less_than=96 {operation code for \.<}
-@d less_or_equal=97 {operation code for \.{<=}}
-@d greater_than=98 {operation code for \.>}
-@d greater_or_equal=99 {operation code for \.{>=}}
-@d equal_to=100 {operation code for \.=}
-@d unequal_to=101 {operation code for \.{<>}}
-@d concatenate=102 {operation code for \.\&}
-@d rotated_by=103 {operation code for \.{rotated}}
-@d slanted_by=104 {operation code for \.{slanted}}
-@d scaled_by=105 {operation code for \.{scaled}}
-@d shifted_by=106 {operation code for \.{shifted}}
-@d transformed_by=107 {operation code for \.{transformed}}
-@d x_scaled=108 {operation code for \.{xscaled}}
-@d y_scaled=109 {operation code for \.{yscaled}}
-@d z_scaled=110 {operation code for \.{zscaled}}
-@d in_font=111 {operation code for \.{infont}}
-@d intersect=112 {operation code for \.{intersectiontimes}}
-@d double_dot=113 {operation code for improper \.{..}}
-@d substring_of=114 {operation code for \.{substring}}
+@d close_from_op=39 {operation code for \.{closefrom}}
+@d odd_op=40 {operation code for \.{odd}}
+@d known_op=41 {operation code for \.{known}}
+@d unknown_op=42 {operation code for \.{unknown}}
+@d not_op=43 {operation code for \.{not}}
+@d decimal=44 {operation code for \.{decimal}}
+@d reverse=45 {operation code for \.{reverse}}
+@d make_path_op=46 {operation code for \.{makepath}}
+@d make_pen_op=47 {operation code for \.{makepen}}
+@d oct_op=48 {operation code for \.{oct}}
+@d hex_op=49 {operation code for \.{hex}}
+@d ASCII_op=50 {operation code for \.{ASCII}}
+@d char_op=51 {operation code for \.{char}}
+@d length_op=52 {operation code for \.{length}}
+@d turning_op=53 {operation code for \.{turningnumber}}
+@d x_part=54 {operation code for \.{xpart}}
+@d y_part=55 {operation code for \.{ypart}}
+@d xx_part=56 {operation code for \.{xxpart}}
+@d xy_part=57 {operation code for \.{xypart}}
+@d yx_part=58 {operation code for \.{yxpart}}
+@d yy_part=59 {operation code for \.{yypart}}
+@d red_part=60 {operation code for \.{redpart}}
+@d green_part=61 {operation code for \.{greenpart}}
+@d blue_part=62 {operation code for \.{bluepart}}
+@d font_part=63 {operation code for \.{fontpart}}
+@d text_part=64 {operation code for \.{textpart}}
+@d path_part=65 {operation code for \.{pathpart}}
+@d pen_part=66 {operation code for \.{penpart}}
+@d dash_part=67 {operation code for \.{dashpart}}
+@d sqrt_op=68 {operation code for \.{sqrt}}
+@d m_exp_op=69 {operation code for \.{mexp}}
+@d m_log_op=70 {operation code for \.{mlog}}
+@d sin_d_op=71 {operation code for \.{sind}}
+@d cos_d_op=72 {operation code for \.{cosd}}
+@d floor_op=73 {operation code for \.{floor}}
+@d uniform_deviate=74 {operation code for \.{uniformdeviate}}
+@d char_exists_op=75 {operation code for \.{charexists}}
+@d font_size=76 {operation code for \.{fontsize}}
+@d ll_corner_op=77 {operation code for \.{llcorner}}
+@d lr_corner_op=78 {operation code for \.{lrcorner}}
+@d ul_corner_op=79 {operation code for \.{ulcorner}}
+@d ur_corner_op=80 {operation code for \.{urcorner}}
+@d arc_length=81 {operation code for \.{arclength}}
+@d angle_op=82 {operation code for \.{angle}}
+@d cycle_op=83 {operation code for \.{cycle}}
+@d filled_op=84 {operation code for \.{filled}}
+@d stroked_op=85 {operation code for \.{stroked}}
+@d textual_op=86 {operation code for \.{textual}}
+@d clipped_op=87 {operation code for \.{clipped}}
+@d bounded_op=88 {operation code for \.{bounded}}
+@d plus=89 {operation code for \.+}
+@d minus=90 {operation code for \.-}
+@d times=91 {operation code for \.*}
+@d over=92 {operation code for \./}
+@d pythag_add=93 {operation code for \.{++}}
+@d pythag_sub=94 {operation code for \.{+-+}}
+@d or_op=95 {operation code for \.{or}}
+@d and_op=96 {operation code for \.{and}}
+@d less_than=97 {operation code for \.<}
+@d less_or_equal=98 {operation code for \.{<=}}
+@d greater_than=99 {operation code for \.>}
+@d greater_or_equal=100 {operation code for \.{>=}}
+@d equal_to=101 {operation code for \.=}
+@d unequal_to=102 {operation code for \.{<>}}
+@d concatenate=103 {operation code for \.\&}
+@d rotated_by=104 {operation code for \.{rotated}}
+@d slanted_by=105 {operation code for \.{slanted}}
+@d scaled_by=106 {operation code for \.{scaled}}
+@d shifted_by=107 {operation code for \.{shifted}}
+@d transformed_by=108 {operation code for \.{transformed}}
+@d x_scaled=109 {operation code for \.{xscaled}}
+@d y_scaled=110 {operation code for \.{yscaled}}
+@d z_scaled=111 {operation code for \.{zscaled}}
+@d in_font=112 {operation code for \.{infont}}
+@d intersect=113 {operation code for \.{intersectiontimes}}
+@d double_dot=114 {operation code for improper \.{..}}
+@d substring_of=115 {operation code for \.{substring}}
 @d min_of=substring_of
-@d subpath_of=115 {operation code for \.{subpath}}
-@d direction_time_of=116 {operation code for \.{directiontime}}
-@d point_of=117 {operation code for \.{point}}
-@d precontrol_of=118 {operation code for \.{precontrol}}
-@d postcontrol_of=119 {operation code for \.{postcontrol}}
-@d pen_offset_of=120 {operation code for \.{penoffset}}
-@d arc_time_of=121 {operation code for \.{arctime}}
+@d subpath_of=116 {operation code for \.{subpath}}
+@d direction_time_of=117 {operation code for \.{directiontime}}
+@d point_of=118 {operation code for \.{point}}
+@d precontrol_of=119 {operation code for \.{precontrol}}
+@d postcontrol_of=120 {operation code for \.{postcontrol}}
+@d pen_offset_of=121 {operation code for \.{penoffset}}
+@d arc_time_of=122 {operation code for \.{arctime}}
 
 @p procedure print_op(@!c:quarterword);
 begin if c<=numeric_type then print_type(c)
@@ -4269,6 +4278,7 @@ read_string_op:print("readstring");
 pen_circle:print("pencircle");
 normal_deviate:print("normaldeviate");
 read_from_op:print("readfrom");
+close_from_op:print("closefrom");
 odd_op:print("odd");
 known_op:print("known");
 unknown_op:print("unknown");
@@ -5109,7 +5119,7 @@ if name_type(p)=token then
   if type(p)=known then @<Display a numeric token@>
   else if type(p)<>string_type then print(" BAD")
 @.BAD@>
-  else  begin print_char(""""); slow_print(value(p)); print_char("""");
+  else  begin print_char(""""); print(value(p)); print_char("""");
     c:=string_class;
     end
 else if (name_type(p)<>capsule)or(type(p)<vacuous)or(type(p)>independent) then
@@ -8032,21 +8042,17 @@ else  miterlim_val(t):=internal[miterlimit]
 @ A stroked path is represented by an eight-word node that is like a filled
 contour node except that it contains the current \&{linecap} value, a scale
 factor for the dash pattern, and a pointer that is non-null if the stroke
-is to be dashed.  The purpose of the scale factor is to counteract any
-scaling from the transformation stored with the pen. The |fix_dash_scale| macro
-corrects the scale factor when the pen is changed.
+is to be dashed.  The purpose of the scale factor is to allow a picture to
+be transformed without touching the picture that |dash_p| points to.
 
 @d dash_p(#)==link(#+6)
   {a pointer to the edge structure that gives the dash pattern}
 @d lcap_val(#)==type(#+6)
   {the value of \&{linecap}}
 @:linecap_}{\&{linecap} primitive@>
-@d dash_scale(#)==mem[#+7].sc {dash lengths are scaled by one over this factor}
+@d dash_scale(#)==mem[#+7].sc {dash lengths are scaled by this factor}
 @d stroked_node_size=8
 @d stroked_code=2
-@d fix_dash_scale(#)==begin
-  if pen_is_elliptical(pen_p(#)) then dash_scale(#):=get_pen_scale(pen_p(#));
-  end
 
 @p function new_stroked_node(@!p:pointer): pointer;
   {make a stroked node for path |p| with |pen_p(p)| temporarily |null|}
@@ -8067,32 +8073,34 @@ begin t:=get_node(stroked_node_size);
 end;
 
 @ When a dashed line is computed in a transformed coordinate system, the dash
-lengths get scaled like the pen shape.  But there is no unique scale
-factor for an arbitrary transformation.  The best we can do is to multiply by
-the square root of the determinant.  The computation is fairly straight-forward
+lengths get scaled like the pen shape and we need to compensate for this.  Since
+there is no unique scale factor for an arbitrary transformation, we use the
+the square root of the determinant.  The properties of the determinant make it
+easier to maintain the |dash_scale|.  The computation is fairly straight-forward
 except for the initialization of the scale factor |s|.  The factor of 64 is
 needed because |square_rt| scales its result by $2^8$ while we need $2^{14}$
 to counteract the effect of |take_fraction|.
 
 @<Declare subroutines needed by |print_edges|@>=
-function get_pen_scale(p:pointer):scaled;
-var @!a,@!b,@!c,@!d:scaled; {the transformation matrix from |p|}
-@!maxabs:scaled; {$max(|a|,|b|,|c|,|d|)$}
+function sqrt_det(a,b,c,d:scaled):scaled;
+var @!maxabs:scaled; {$max(|a|,|b|,|c|,|d|)$}
 @!s:integer; {amount by which the result of |square_rt| needs to be scaled}
-begin @<Initialize |a|, |b|, |c|, |d|, and |maxabs|@>;
+begin @<Initialize |maxabs|@>;
 s:=64;
 while (maxabs<fraction_one) and (s>1) do
   begin double(a); double(b); double(c); double(d);@/
   double(maxabs); s:=halfp(s);
   end;
-get_pen_scale:=s*square_rt(abs(take_fraction(a,d)-take_fraction(b,c)));
+sqrt_det:=s*square_rt(abs(take_fraction(a,d)-take_fraction(b,c)));
+end;
+@#
+function get_pen_scale(p:pointer):scaled;
+begin get_pen_scale:=sqrt_det(
+  left_x(p)-x_coord(p), right_x(p)-x_coord(p),@/
+  left_y(p)-y_coord(p), right_y(p)-y_coord(p));
 end;
 
-@ @<Initialize |a|, |b|, |c|, |d|, and |maxabs|@>=
-a:=left_x(p)-x_coord(p);
-b:=right_x(p)-x_coord(p);@/
-c:=left_y(p)-y_coord(p);
-d:=right_y(p)-y_coord(p);@/
+@ @<Initialize |maxabs|@>=
 maxabs:=abs(a);
 if abs(b)>maxabs then maxabs:=abs(b);
 if abs(c)>maxabs then maxabs:=abs(c);
@@ -8574,8 +8582,8 @@ give it any convenient value.
 
 @<Finish printing the dash pattern that |p| refers to@>=
 ok_to_dash:=pen_is_elliptical(pen_p(p));
-if (dash_scale(p)=0)or not ok_to_dash then scf:=unity
-else scf:=make_scaled(get_pen_scale(pen_p(p)),dash_scale(p));
+if not ok_to_dash then scf:=unity
+else scf:=dash_scale(p);
 hh:=dash_p(p);
 pp:=dash_list(hh);
 if (pp=null_dash) or (dash_y(hh)<0) then print(" ??")
@@ -8606,8 +8614,8 @@ dash_offset:=x;
 end;
 
 @ @<Cases for printing graphical object node |p|@>=
-text_code: begin print_char(""""); slow_print(text_p(p));
-  print(""" infont """); slow_print(font_name[font_n(p)]);
+text_code: begin print_char(""""); print(text_p(p));
+  print(""" infont """); print(font_name[font_n(p)]);
   print_char(""""); print_ln;
   print_obj_color(p);
   print("transformed ");
@@ -8689,8 +8697,8 @@ help3("When you say `dashed p', every path in p should be monotone")@/
 put_get_error;
 end;
 
-@ We stash |dash_p(p)| in |info(d)| so that subsequent processing can handle
-the case where the pen stroke |p| is itself dashed.
+@ We stash |p| in |info(d)| if |dash_p(p)<>0| so that subsequent processing can
+handle the case where the pen stroke |p| is itself dashed.
 
 @<Make |d| point to a new dash node created from stroke |p| and path...@>=
 @<Make sure |p| and |p0| are the same color and |goto not_found| if there is
@@ -8702,7 +8710,7 @@ if link(pp)<>pp then
      if there is a problem@>;
   until right_type(rr)=endpoint;
 d:=get_node(dash_node_size);
-info(d):=dash_p(p);
+if dash_p(p)=0 then info(d):=0 @+else info(d):=p;
 if x_coord(pp)<x_coord(rr) then
   begin start_x(d):=x_coord(pp);
   stop_x(d):=x_coord(rr);
@@ -8778,32 +8786,42 @@ flush_dash_list(h);
 delete_edge_ref(h);
 make_dashes:=null
 
-@ Having carefully saved the |dash_p| pointers from stroked nodes in the
+@ Having carefully saved the dashed stroked nodes in the
 corresponding dash nodes, we must be prepared to break up these dashes into
 smaller dashes.
 
 @<Scan |dash_list(h)| and deal with any dashes that are themselves dashed@>=
 d:=h;  {now |link(d)=dash_list(h)|}
 while link(d)<>null_dash do
-  begin hh:=info(link(d));
-  if hh=null then d:=link(d)
-  else if dash_y(hh)=0 then d:=link(d)
-  else begin if dash_list(hh)=null then confusion("dash1");
+  begin ds:=info(link(d));
+  if ds=null then d:=link(d)
+  else begin
+    hh:=dash_p(ds);
+    hsf:=dash_scale(ds);
+    if (hh=null) then confusion("dash1");
 @:this can't happen dash0}{\quad dash1@>
-    @<Replace |link(d)| by a dashed version as determined by edge header |hh|@>;
+    if dash_y(hh)=0 then d:=link(d)
+    else begin if dash_list(hh)=null then confusion("dash1");
+@:this can't happen dash0}{\quad dash1@>
+      @<Replace |link(d)| by a dashed version as determined by edge header
+          |hh| and scale factor |ds|@>;
+      end;
     end;
   end
 
 @ @<Other local variables in |make_dashes|@>=
 @!dln:pointer;  {|link(d)|}
 @!hh:pointer;  {an edge header that tells how to break up |dln|}
+@!hsf:scaled;  {the dash pattern from |hh| gets scaled by this}
+@!ds:pointer;  {the stroked node from which |hh| and |hsf| are derived}
 @!xoff:scaled;  {added to $x$ values in |dash_list(hh)| to match |dln|}
 
-@ @<Replace |link(d)| by a dashed version as determined by edge header |hh|@>=
+@ @<Replace |link(d)| by a dashed version as determined by edge header...@>=
 dln:=link(d);
 dd:=dash_list(hh);
-xoff:=start_x(dln)-start_x(dd)-dash_offset(hh);
-start_x(null_dash):=start_x(dd)+dash_y(hh);
+xoff:=start_x(dln)-take_scaled(hsf,start_x(dd))-
+        take_scaled(hsf,dash_offset(hh));
+start_x(null_dash):=take_scaled(hsf,start_x(dd))+take_scaled(hsf,dash_y(hh));
 stop_x(null_dash):=start_x(null_dash);
 @<Advance |dd| until finding the first dash that overlaps |dln| when
   offset by |xoff|@>;
@@ -8813,37 +8831,39 @@ while start_x(dln)<=stop_x(dln) do
   @<Insert a dash between |d| and |dln| for the overlap with the offset version
     of |dd|@>;
   dd:=link(dd);
-  start_x(dln):=xoff+start_x(dd);
+  start_x(dln):=xoff+take_scaled(hsf,start_x(dd));
   end;
 link(d):=link(dln);
 free_node(dln,dash_node_size)
 
 @ The name of this module is a bit of a lie because we actually just find the
-first |dd| whose |stop_x(dd)| is large enough to make an overlap possible.
-It could be that the unoffset version of dash |dln| falls in the gap between
-|dd| and its predecessor.
+first |dd| where |take_scaled(hsf,stop_x(dd))| is large enough to make an
+overlap possible.  It could be that the unoffset version of dash |dln| falls
+in the gap between |dd| and its predecessor.
 
 @<Advance |dd| until finding the first dash that overlaps |dln| when...@>=
-while xoff+stop_x(dd)<start_x(dln) do
+while xoff+take_scaled(hsf,stop_x(dd))<start_x(dln) do
   dd:=link(dd)
 
 @ @<If |dd| has `fallen off the end', back up to the beginning and fix...@>=
 if dd=null_dash then
   begin dd:=dash_list(hh);
-  xoff:=xoff+dash_y(hh);
+  xoff:=xoff+take_scaled(hsf,dash_y(hh));
   end
 
-@ At this point we already know that |start_x(dln)<=xoff+stop_x(dd)|.
+@ At this point we already know that
+|start_x(dln)<=xoff+take_scaled(hsf,stop_x(dd))|.
 
 @<Insert a dash between |d| and |dln| for the overlap with the offset...@>=
-if xoff+start_x(dd)<=stop_x(dln) then
+if xoff+take_scaled(hsf,start_x(dd))<=stop_x(dln) then
   begin link(d):=get_node(dash_node_size);
   d:=link(d);
   link(d):=dln;
-  if start_x(dln)>xoff+start_x(dd) then start_x(d):=start_x(dln)
-  else start_x(d):=xoff+start_x(dd);
-  if stop_x(dln)<xoff+stop_x(dd) then stop_x(d):=stop_x(dln)
-  else stop_x(d):=xoff+stop_x(dd);
+  if start_x(dln)>xoff+take_scaled(hsf,start_x(dd))
+  then start_x(d):=start_x(dln)
+  else start_x(d):=xoff+take_scaled(hsf,start_x(dd));
+  if stop_x(dln)<xoff+take_scaled(hsf,stop_x(dd)) then stop_x(d):=stop_x(dln)
+  else stop_x(d):=xoff+take_scaled(hsf,stop_x(dd));
   end
 
 @ The next major task is to update the bounding box information in an edge
@@ -14508,7 +14528,8 @@ begin str_scan_file(s);
 pack_cur_name;
 begin_file_reading;
 if not a_open_in(rd_file[n]) then goto not_found;
-if not input_ln(rd_file[n],false) then goto not_found;
+if not input_ln(rd_file[n],false) then
+  begin a_close(rd_file[n]); goto not_found; end;
 rd_fname[n]:=s;
 add_str_ref(s);
 start_read_input:=true;
@@ -14776,7 +14797,7 @@ vacuous:print("vacuous");
 boolean_type:if v=true_code then print("true")@+else print("false");
 unknown_types,numeric_type:@<Display a variable
   that's been declared but not defined@>;
-string_type:begin print_char(""""); slow_print(v); print_char("""");
+string_type:begin print_char(""""); print(v); print_char("""");
   end;
 pen_type,path_type,picture_type:@<Display a complex type@>;
 transform_type,color_type,pair_type:if v=null then print_type(t)
@@ -16262,6 +16283,8 @@ primitive("normaldeviate",nullary,normal_deviate);@/
 @!@:normal_deviate_}{\&{normaldeviate} primitive@>
 primitive("readfrom",unary,read_from_op);@/
 @!@:read_from_}{\&{readfrom} primitive@>
+primitive("closefrom",unary,close_from_op);@/
+@!@:close_from_}{\&{closefrom} primitive@>
 primitive("odd",unary,odd_op);@/
 @!@:odd_}{\&{odd} primitive@>
 primitive("known",unary,known_op);@/
@@ -16675,6 +16698,7 @@ font_part,text_part,path_part,pen_part,dash_part:
   else bad_unary(c);
 
 @ @<Declare unary action...@>=
+procedure@?scale_edges; forward;@t\2@>@;@/
 procedure take_pict_part(@!c:quarterword);
 label exit, not_found;
 var @!p:pointer; {first graphical object in |cur_exp|}
@@ -16706,8 +16730,6 @@ font_part: if type(p)<>text_code then goto not_found
     add_str_ref(cur_exp);
     cur_type:=string_type;
     end;
-
-@ @<Handle other cases in |take_pict_part| or |goto not_found|@>=
 path_part:if type(p)=text_code then goto not_found
   else if is_stop(p) then confusion("pict")
 @:this can't happen pict}{\quad pict@>
@@ -16721,10 +16743,21 @@ pen_part: if not has_pen(p) then goto not_found
       end;
 dash_part: if type(p)<>stroked_code then goto not_found
   else if dash_p(p)=null then goto not_found
-  else begin flush_cur_exp(dash_p(p));
-    add_edge_ref(cur_exp);
+  else begin add_edge_ref(dash_p(p));@/
+    se_sf:=dash_scale(p);
+    se_pic:=dash_p(p);
+    scale_edges;
+    flush_cur_exp(se_pic);
     cur_type:=picture_type;
     end;
+
+@ Since |scale_edges| had to be declared |forward|, it had to be declared as a
+parameterless procedure even though it really takes two arguments and updates
+one of them.  Hence the following globals are needed.
+
+@<Global...@>=
+@!se_pic:pointer;  {edge header used and updated by |scale_edges|}
+@!se_sf:scaled;  {the scale factor argument to |scale_edges|}
 
 @ @<Convert the current expression to a null value appropriate...@>=
 case c of
@@ -16753,9 +16786,6 @@ endcases
 char_op: if cur_type<>known then bad_unary(char_op)
   else  begin cur_exp:=round_unscaled(cur_exp) mod 256; cur_type:=string_type;
     if cur_exp<0 then cur_exp:=cur_exp+256;
-    if length(cur_exp)<>1 then
-      begin str_room(1); append_char(cur_exp); cur_exp:=make_string;
-      end;
     end;
 decimal: if cur_type<>known then bad_unary(decimal)
   else  begin old_setting:=selector; selector:=new_string;
@@ -17023,15 +17053,17 @@ get_cur_bbox:=true;
 exit:end;
 
 @ @<Additional cases of unary operators@>=
-read_from_op: if cur_type<>string_type then bad_unary(read_from_op)
-else do_read_from;
+read_from_op,close_from_op: if cur_type<>string_type then bad_unary(c)
+else do_read_or_close(c);
 
 @ Here is a routine that interprets |cur_exp| as a file name and tries to read
-a line from the file.
+a line from the file or to close the file.
+
+@d close_file=46 {go here when closing the file}
 
 @<Declare unary action procedures@>=
-procedure do_read_from;
-label exit, continue, found, not_found;
+procedure do_read_or_close(@!c:quarterword);
+label exit, continue, found, not_found, close_file;
 var @!n,@!n0:readf_index; {indices for searching |rd_fname|}
 begin @<Find the |n| where |rd_fname[n]=cur_exp|; if |cur_exp| must be inserted,
   call |start_read_input| and |goto found| or |not_found|@>;
@@ -17041,6 +17073,7 @@ if input_ln(rd_file[n],true) then goto found;
 end_file_reading;
 not_found:@<Record the end of file and set |cur_exp| to a dummy value@>;
 return;
+close_file:flush_cur_exp(0); cur_type:=vacuous; return;
 found:flush_cur_exp(0);
 finish_read;
 exit:end;
@@ -17053,12 +17086,15 @@ n:=read_files;
 n0:=read_files;
 repeat
 continue:if n>0 then decr(n)
+else if c=close_from_op then goto close_file
 else @<Insert |cur_exp| at index |n0|, then call |start_read_input| and
   |goto found| or |not_found|@>;
 if rd_fname[n]=0 then
   begin n0:=n; goto continue;
   end;
-until str_vs_str(cur_exp,rd_fname[n])=0
+until str_vs_str(cur_exp,rd_fname[n])=0;
+if c=close_from_op then
+  begin a_close(rd_file[n]); goto not_found; end
 
 @ @<Insert |cur_exp| at index |n0|, then call |start_read_input| and...@>=
 begin if n0=read_files then
@@ -17069,10 +17105,10 @@ if start_read_input(cur_exp,n) then goto found @+else goto not_found;
 end
 
 @ @<Record the end of file and set |cur_exp| to a dummy value@>=
-a_close(rd_file[n]);
 delete_str_ref(rd_fname[n]);
 rd_fname[n]:=0;
 if n=read_files-1 then read_files:=n;
+if c=close_from_op then goto close_file;
 @<Make sure |eof_line| is initialized@>;
 flush_cur_exp(eof_line);
 cur_type:=string_type
@@ -17312,7 +17348,7 @@ end;
 
 @<Additional cases of binary operators@>=
 less_than,less_or_equal,greater_than,greater_or_equal,equal_to,unequal_to:
-  begin@t@>@;
+  begin check_arith; {at this point |arith_error| should be |false|?}
   if (cur_type>pair_type)and(type(p)>pair_type) then
     add_or_subtract(p,null,minus) {|cur_exp:=(p)-cur_exp|}
   else if cur_type<>type(p) then
@@ -17328,7 +17364,8 @@ less_than,less_or_equal,greater_than,greater_or_equal,equal_to,unequal_to:
   else  begin bad_binary(p,c); goto done;
     end;
   @<Compare the current expression with zero@>;
-done:  end;
+done:  arith_error:=false; {ignore overflow in comparisons}
+  end;
 
 @ @<Compare the current expression with zero@>=
 if cur_type<>known then
@@ -17549,7 +17586,7 @@ rotated_by,slanted_by,scaled_by,shifted_by,transformed_by,
     end
   else if (type(p)=pair_type)or(type(p)=transform_type) then big_trans(p,c)
   else if type(p)=picture_type then
-    begin edges_trans(p,c); return;
+    begin do_edges_trans(p,c); return;
     end
   else bad_binary(p,c);
 
@@ -17722,19 +17759,25 @@ exit:end;
 
 @ The next transformation procedure applies to edge structures. It will do
 any transformation, but the results may be substandard if the picture contains
-text that uses downloaded bitmap fonts.
+text that uses downloaded bitmap fonts.  The binary action procedure is
+|do_edges_trans|, but we also need a function that just scales a picture.
+That routine is |scale_edges|.  Both it and the underlying routine |edges_trans|
+should be thought of as procedures that update an edge structure |h|, except
+that they have to return a (possibly new) structure because of the need to call
+|private_edges|.
 
 @<Declare binary action...@>=
-procedure edges_trans(@!p:pointer;@!c:quarterword);
+function edges_trans(@!h:pointer):pointer;
 label done1;
-var @!h:pointer; {the header of the edge structure being transformed}
-@!q:pointer; {the object being transformed}
+var @!q:pointer; {the object being transformed}
 @!r,@!s:pointer; {for list manipulation}
 @!sx,@!sy:scaled; {saved transformation parameters}
+@!sqdet:scaled; {square root of determinant for |dash_scale|}
+@!sgndet:integer; {sign of the determinant}
 @!v:scaled; {a temporary value}
-begin set_up_known_trans(c);
-h:=private_edges(value(p));
-value(p):=h;
+begin h:=private_edges(h);@/
+sqdet:=sqrt_det(txx,txy,tyx,tyy);
+sgndet:=ab_vs_cd(txx,tyy,txy,tyx);
 if dash_list(h)<>null_dash then
   @<Try to transform the dash list of |h|@>;
 @<Make the bounding box of |h| unknown if it can't be updated properly
@@ -17744,7 +17787,19 @@ while q<>null do
   begin @<Transform graphical object |q|@>;@/
   q:=link(q);
   end;
+edges_trans:=h;
+end;
+@#
+procedure do_edges_trans(@!p:pointer;@!c:quarterword);
+begin set_up_known_trans(c);
+value(p):=edges_trans(value(p));
 unstash_cur_exp(p);
+end;
+@#
+procedure scale_edges;
+begin txx:=se_sf; tyy:=se_sf;
+txy:=0; tyx:=0; tx:=0; ty:=0;
+se_pic:=edges_trans(se_pic);
 end;
 
 @ @<Try to transform the dash list of |h|@>=
@@ -17814,7 +17869,7 @@ structure~|h|.
 case type(q) of
 fill_code,stroked_code: begin
   do_path_trans(path_p(q));
-  @<Transform |pen_p(q)|@>;
+  @<Transform |pen_p(q)|, making sure polygonal pens stay counter-clockwise@>;
   end;
 start_clip_code,start_bounds_code: do_path_trans(path_p(q));
 text_code:begin r:=text_tx_loc(q);
@@ -17824,14 +17879,21 @@ stop_clip_code,stop_bounds_code: do_nothing;
 end {there are no other cases}
 
 @ Note that the shift parameters |(tx,ty)| apply only to the path being stroked.
-There is no need to change the |dash_scale| or rescale the dash pattern to match
-the transformation because these effects cancel each other.
+The |dash_scale| has to be adjusted  to scale the dash lengths in |dash_p(q)|
+since the \ps\ output procedures will try to compensate for the transformation
+we are applying to |pen_p(q)|.  Since this compensation is based on the square
+root of the determinant, |sqdet| is the appropriate factor.
 
-@<Transform |pen_p(q)|@>=
+@<Transform |pen_p(q)|, making sure...@>=
 if pen_p(q)<>null then
   begin sx:=tx; sy:=ty;
   tx:=0; ty:=0;@/
   do_pen_trans(pen_p(q));
+  if (dash_p(q)<>null) then
+    dash_scale(q):=take_scaled(dash_scale(q),sqdet);
+  if not pen_is_elliptical(pen_p(q)) then
+    if sgndet<0 then
+      pen_p(q):=make_pen(copy_path(pen_p(q)),true); {this unreverses the pen}
   tx:=sx; ty:=sy;
   end
 
@@ -18321,7 +18383,7 @@ end
 
 @ @<Do a title@>=
 begin if internal[tracing_titles]>0 then
-  begin print_nl(""); slow_print(cur_exp); update_terminal;
+  begin print_nl(""); print(cur_exp); update_terminal;
   end;
 end
 
@@ -19185,13 +19247,13 @@ while cur_cmd=with_option do
       if pp<>null then
         begin if pen_p(pp)<>null then toss_knot_list(pen_p(pp));
         pen_p(pp):=cur_exp; cur_type:=vacuous;
-        if type(pp)=stroked_code then fix_dash_scale(pp);
         end;
       end
     else begin if dp=void then @<Make |dp| a stroked node in list~|p|@>;
       if dp<>null then
         begin if dash_p(dp)<>null then delete_edge_ref(dash_p(dp));
         dash_p(dp):=make_dashes(cur_exp);
+        dash_scale(dp):=unity;
         cur_type:=vacuous;
         end;
       end;
@@ -19273,21 +19335,12 @@ while q<>null do
   end;
 end
 
-@ Since |dash_scale| in a stroked node depends on the pen, we can afford to
-copy from a dashed node whose |pen_p| has already been set.  This code uses
-|pp| to keep track of this dashed node.
-
-@<Copy |pen_p(pp)| into stroked and filled nodes linked to |pp|@>=
+@ @<Copy |pen_p(pp)| into stroked and filled nodes linked to |pp|@>=
 begin q:=link(pp);
 while q<>null do
   begin if has_pen(q) then
     begin if pen_p(q)<>null then toss_knot_list(pen_p(q));
     pen_p(q):=copy_pen(pen_p(pp));
-    if type(q)=stroked_code then
-      if type(pp)=stroked_code then dash_scale(q):=dash_scale(pp)
-      else begin fix_dash_scale(q);
-        pp:=q;
-        end;
     end;
   q:=link(q);
   end;
@@ -19299,6 +19352,7 @@ while q<>null do
   begin if type(q)=stroked_code then
     begin if dash_p(q)<>null then delete_edge_ref(dash_p(q));
     dash_p(q):=dash_p(dp);
+    dash_scale(q):=unity;
     if dash_p(q)<>null then add_edge_ref(dash_p(q));
     end;
   q:=link(q);
@@ -19498,9 +19552,7 @@ else if p<>null then
   begin link(obj_tail(lhe)):=p;
   obj_tail(lhe):=p;
   if add_type=double_path_code then
-    begin if pen_p(p)=null then pen_p(p):=get_pen_circle(0);
-    fix_dash_scale(p);
-    end;
+    if pen_p(p)=null then pen_p(p):=get_pen_circle(0);
   end
 
 @ @<Merge |e| into |lhe| and delete |e|@>=
@@ -19582,7 +19634,7 @@ begin m:=cur_mod; get_x_next; scan_expression;
 if cur_type<>string_type then
   no_string_err("A message should be a known string expression.")
 else case m of
-  message_code:begin print_nl(""); slow_print(cur_exp);
+  message_code:begin print_nl(""); print(cur_exp);
     end;
   err_message_code:@<Print string |cur_exp| as an error message@>;
   err_help_code:@<Save string |cur_exp| as the |err_help|@>;
@@ -19618,7 +19670,7 @@ give a verbose explanation only once.
 @ @<Set init...@>=long_help_seen:=false;
 
 @ @<Print string |cur_exp| as an error message@>=
-begin print_err(""); slow_print(cur_exp);
+begin print_err(""); print(cur_exp);
 if err_help<>0 then use_err_help:=true
 else if long_help_seen then help1("(That was another `errmessage'.)")
 else  begin if interaction<error_stop_mode then long_help_seen:=true;
@@ -19660,9 +19712,7 @@ else begin t:=cur_exp; cur_type:=vacuous;
 flush_cur_exp(0);
 end;
 
-@ This is a lot like |do_read_from| but all the names are different.
-
-@<Write |t| to the file named by |cur_exp|@>=
+@ @<Write |t| to the file named by |cur_exp|@>=
 begin @<Find |n| where |wr_fname[n]=cur_exp| and call |open_write_file| if
   |cur_exp| must be inserted@>;
 @<Make sure |eof_line| is initialized@>;
@@ -19670,7 +19720,7 @@ if str_vs_str(t,eof_line)=0 then
   @<Record the end of file on |wr_file[n]|@>
 else begin old_setting:=selector;
   selector:=n;
-  slow_print(t); print_ln;
+  print(t); print_ln;
   selector := old_setting;
   end;
 end
@@ -20962,9 +21012,13 @@ tf_ignore(10)
 
 @ Offsets are added to |char_base[n]| and |width_base[n]| so that is not
 necessary to apply the |so|  and |qo| macros when looking up the width of a
-character in the string pool.
+character in the string pool.  In order to ensure nonnegative |char_base|
+values when |bc>0|, it may be necessary to reserve a few unused |font_info|
+elements.
 
 @<Use the size fields to allocate space in |font_info|@>=
+if next_fmem<bc+min_pool_ASCII then next_fmem:=bc+min_pool_ASCII;
+  {ensure nonnegative |char_base|}
 if (last_fnum=font_max)or(next_fmem+whd_size>=font_mem_size) then
   @<Explain that there isn't enough space and |goto done|@>;
 incr(last_fnum);
@@ -21603,9 +21657,12 @@ a reference.
 @<Make sure \ps\ will use the right dash pattern for |dash_p(p)|@>=
 if type(p)=fill_code then hh:=null
 else begin hh:=dash_p(p);
-  if dash_scale(p)=0 then
-    if gs_width=0 then scf:=unity @+else hh:=null
-  else scf:=make_scaled(gs_width,dash_scale(p));
+  scf:=get_pen_scale(pen_p(p));
+  if scf=0 then
+    if gs_width=0 then scf:=dash_scale(p) @+else hh:=null
+  else begin scf:=make_scaled(gs_width,scf);
+    scf:=take_scaled(scf,dash_scale(p));
+    end;
   end;
 if hh=null then
   begin if gs_dash_p<>null then

@@ -195,5 +195,8 @@ write "triangle" "writeo";
 write "triangle" to triang;
 showstats;
 
+closefrom "mtrap.0";
+string s; s=readfrom "mtrap.0";
+show readfrom "mtrap.0";   % should be 2nd line, not 5th line
 
 end

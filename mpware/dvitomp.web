@@ -26,6 +26,7 @@
 % Version 0.62 makes the output more robust when used in a macro definition
 % Version 0.63 new version number only (Unix change file has // path searching)
 % Version 0.632 outputs a setbounds path even if no 1sp vrule appears (Jan 1997)
+% Version 0.64 avoids outputting wrong fonts, improves error handling (Jan 1998)
 
 % Although considerable effort has been expended to make the DVItoMP program
 % correct and reliable, no warranty is implied; the author disclaims any
@@ -59,7 +60,7 @@
   \vfill
   \centerline{\titlefont The {\ttitlefont DVItoMP} processor}
   \vskip 15pt
-  \centerline{(Version 0.632, January 1997)}
+  \centerline{(Version 0.64, January 1998)}
   \vfill}
 \pageno=\contentspagenumber \advance\pageno by 1
 
@@ -82,7 +83,7 @@ an ``\.{MPX}'' file.
 The |banner| string defined here should be changed whenever \.{DVItoMP}
 gets modified.
 
-@d banner=='% Written by DVItoMP, Version 0.632'
+@d banner=='% Written by DVItoMP, Version 0.64'
   {the first line of the output file}
 
 @ This program is written in standard \PASCAL, except where it is necessary
@@ -500,7 +501,7 @@ Otherwise, input can either come directly from |dvi_file| or from a buffer
 @!buf_ptr:0..virtual_space; {|cmd_buf| index for the next byte}
 
 @ @<Set init...@>=
-buf_ptr:=virtual_space;
+vf_reading:=false; buf_ptr:=virtual_space;
 
 @ It is probably not critical that |cmd_buf| be packed as efficiently as possible,
 but we define a new type just in case it is necessary to for |cmd_buf| entries
@@ -653,7 +654,9 @@ the commands for character~|c| starting at
 |start_cmd(f)(c+1)|.  Font numbers used when interpreting these \.{DVI}
 commands occupy positions |fbase[f]| through |ftop[f]-1| in the |font_num|
 table and the |internal_num| array gives the corresponding internal font
-numbers.
+numbers.  If such an internal font number~|i| does not correspond to
+some font occuring in the \.{DVI} file, then |font_num[i]| has not been
+assigned a meaningful value; this is indicated by |local_only[i]=true|.
 
 If font~|f| is not virtual, then |fbase[f]=0| and |ftop[f]=0|.  The |start_cmd|
 values are ignored in this case.
@@ -666,6 +669,7 @@ values are ignored in this case.
 @<Glob...@>=
 @!font_num:array [0..max_fnums] of integer; {external font numbers}
 @!internal_num:array [0..max_fnums] of integer; {internal font numbers}
+@!local_only:array [0..max_fonts] of boolean; {|font_num| meaningless?}
 @!font_name:array [0..max_fonts] of 0..name_size; {starting positions
   of external font names}
 @!names:array [0..name_size] of ASCII_code; {characters of names}
@@ -751,7 +755,7 @@ begin if nf=max_fonts then abort('DVItoMP capacity exceeded (max fonts=',
 internal_num[i]:=match_font(nf,true);
 if internal_num[i]=nf then
   begin info_base[nf]:=max_widths; {indicate that the info isn't loaded yet}
-  incr(nf);
+  local_only[nf]:=vf_reading; incr(nf);
   end;
 end;
 
@@ -760,7 +764,7 @@ if vf_ptr=nf then abort('DVItoMP capacity exceeded (max font numbers=',
     max_fnums:1,')');
 @.DVItoMP capacity exceeded...@>
 if vf_reading then
-  begin i:=vf_ptr; decr(vf_ptr);
+  begin font_num[nf]:=0; i:=vf_ptr; decr(vf_ptr);
   end
 else i:=nf;
 font_num[i]:=e
@@ -815,7 +819,14 @@ while f<nf do
     begin @<Compare the names of fonts |f| and |ff|; |goto 99| if they differ@>;
     if exact then
       begin if abs(font_scaled_size[f]-font_scaled_size[ff])
-          <= font_tolerance then goto done;
+          <= font_tolerance then 
+        begin if not vf_reading then
+          if local_only[f] then
+            begin font_num[f]:=font_num[ff]; local_only[f]:=false;
+            end
+          else if font_num[f]<>font_num[ff] then goto 99;
+        goto done;
+        end;
       end
     else if info_base[f]<>max_widths then goto done;
     end;
@@ -860,10 +871,10 @@ so that we are ready to read its first byte. (A complete description of
 not be repeated here.) The procedure does not check the \.{TFM} file
 for validity, nor does it give explicit information about what is
 wrong with a \.{TFM} file that proves to be invalid. The procedure simply
-returns |false| if it detects anything amiss in the \.{TFM} data.
+aborts the program if it detects anything amiss in the \.{TFM} data.
 
-@p function in_TFM(@!f:integer):boolean;
-  {input \.{TFM} data for font |f| or return |false|}
+@p procedure in_TFM(@!f:integer);
+  {input \.{TFM} data for font |f| or abort}
 label 9997, {go here when the format is bad}
   9999;  {go here to exit}
 var k:integer; {index for loops}
@@ -875,10 +886,9 @@ begin @<Read past the header data; |goto 9997| if there is a problem@>;
 @<Read the width values into the |in_width| table@>;
 @<Move the widths from |in_width| to |width|@>;
 fbase[f]:=0; ftop[f]:=0;
-info_ptr:=wp; in_TFM:=true; goto 9999;
-9997: font_warn('Bad TFM file for ')(f);
+info_ptr:=wp; goto 9999;
+9997: font_abort('Bad TFM file for ')(f);
 @.Bad TFM file@>
-in_TFM:=false;
 9999: end;
 
 @ @<Read past the header...@>=
@@ -945,13 +955,13 @@ if wp>0 then for k:=info_ptr to wp-1 do
 The |in_VF| procedure absorbs the necessary information from a \.{VF} file that
 has just been reset so that we are ready to read the first byte.  (A complete
 description of \.{VF} file format appears in the documention of \.{VFtoVP}).
-Like |in_TFM|, this procedure simply returns |false| if it detects anything
+Like |in_TFM|, this procedure simply aborts the program if it detects anything
 wrong with the \.{VF} file.
 
 @p @<Declare a function called |first_par|@>@;
-function in_VF(f:integer):boolean;
-  {read \.{VF} data for font |f| or return |false|}
-label 9997, {go here to return |false|}
+procedure in_VF(f:integer);
+  {read \.{VF} data for font |f| or abort}
+label 9997, {go here to abort}
   9999; {go here to exit}
 var @!p:integer; {a byte from the \.{VF} file}
 @!was_vf_reading:boolean; {old value of |vf_reading|}
@@ -975,10 +985,9 @@ while p<=242 do
   end;
 if p=post then
   begin @<Finish setting up the data structures for the new virtual font@>;
-  in_VF:=true; goto 9999;
+  goto 9999;
   end;
-9997:font_warn('Bad VF file for ')(f);
-in_VF:=false;
+9997:font_abort('Bad VF file for ')(f);
 9999: vf_reading:=was_vf_reading;
 end;
 
@@ -1050,20 +1059,17 @@ internal font number with the width information loaded.
 var @!f:0..max_fonts; {the internal font number}
 @!ff:0..max_fonts; {internal font number for an existing version}
 @!k,@!l:integer; {general purpose loop counters}
-@!did_it:boolean; {has the required information been loaded?}
 begin @<Set |f| to the internal font number that corresponds to |e|,
   or |abort| if there is none@>;
 if info_base[f]=max_widths then
-  begin did_it:=false;
-  ff:=match_font(f,false);
+  begin ff:=match_font(f,false);
   if ff<nf then @<Make font |f| refer to the width information from font |ff|@>
   else begin @<Move the \.{VF} file name into the |cur_name| string@>;
-    if open_vf_file then did_it:=in_VF(f);
-    if not did_it then
-      begin @<Change \.{.VF} to \.{.TFM} in the |cur_name| string@>;
+    if open_vf_file then in_VF(f)
+    else  begin @<Change \.{.VF} to \.{.TFM} in the |cur_name| string@>;
       if not open_tfm_file then font_abort('No TFM file found for ')(f);
   @.no TFM file found@>
-      did_it:=in_TFM(f);
+      in_TFM(f);
       end;
     @<Make sure the checksum in the font file matches the one given in the
       |font_def| for font |f|@>;
@@ -1077,7 +1083,7 @@ end;
 if cur_ftop<=nf then cur_ftop:=nf;
 font_num[cur_ftop]:=e;
 k:=cur_fbase;
-while font_num[k]<>e do incr(k);
+while (font_num[k]<>e)or local_only[k] do incr(k);
 if k=cur_ftop then abort('Undefined font selected');
 f:=internal_num[k]
 
@@ -1149,7 +1155,7 @@ begin if (font_check_sum[f]<>0)and(tfm_check_sum<>0)and@|
     (font_check_sum[f]<>tfm_check_sum) then
   begin err_print('DVItoMP warning: Checksum mismatch for ');
 @.Checksum mismatch@>
-  err_print_font(nf);
+  err_print_font(f);
   if history=spotless then history:=cksum_trouble;
   end;
 end
@@ -1526,9 +1532,9 @@ label 9999;
 var o:eight_bits; {operation code of the current command}
 @!p,@!q:integer; {parameters of the current command}
 @!cur_font:integer; {current internal font number}
-begin cur_font:=nf; {current font is undefined}
-if cur_fbase<cur_ftop then
-  cur_font:=select_font(font_num[cur_ftop-1]); {select first local font}
+begin if (cur_fbase<cur_ftop) and (buf_ptr<virtual_space) then
+  cur_font:=select_font(font_num[cur_ftop-1]) {select first local font}
+else cur_font:=max_fnums+1; {current font is undefined}
 w:=0; x:=0; y:=0; z:=0; {initialize the state variables}
 while true do @<Translate the next command in the \.{DVI} file;
     |goto 9999| if it was |eop|@>;
@@ -1543,7 +1549,12 @@ begin o:=get_byte; p:=first_par(o);
 if eof(dvi_file) then bad_dvi('the DVI file ended prematurely');
 @.the DVI file ended prematurely@>
 if o<set1+4 then  {|set_char_0| through |set_char_127|, |set1| through |set4|}
-  begin set_virtual_char(cur_font,p);
+  begin if cur_font>max_fnums then
+    if vf_reading then
+      abort('no font selected for character ',p:1,' in virtual font')
+    else bad_dvi('no font selected for character ',p:1);
+@.no font selected@>
+  set_virtual_char(cur_font,p);
   h:=h+@<Width of character |p| in font |cur_font|@>;
   end
 else case o of
@@ -1555,7 +1566,7 @@ else case o of
   put_rule: do_set_rule(trunc(p*dvi_scale),trunc(signed_quad*dvi_scale));
   @t\4@>@<Additional cases for translating \.{DVI} command |o| with
       first paramter |p|@>@;
-  undefined_commands:bad_dvi('undefined command ',o:1,'!');
+  undefined_commands:bad_dvi('undefined command ',o:1);
 @.undefined command@>
   end; {all cases have been enumerated}
 end

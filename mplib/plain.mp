@@ -2,7 +2,7 @@
 % It contains all the features of plain METAFONT except those specific to
 % font-making.  (See The METAFONTbook by D.E. Knuth).
 % There are also a number of macros for labeling figures, etc.
-string base_name, base_version; base_name="plain"; base_version="0.63";
+string base_name, base_version; base_name="plain"; base_version="0.64";
 
 message "Preloading the plain mem file, version "&base_version;
 
@@ -437,8 +437,8 @@ enddef;
 
 def _findarr text t =
   draw _apth t;
-  fill arrowhead _apth withpen currentpen  t;
-  fill arrowhead  reverse _apth  withpen currentpen  t
+  filldraw arrowhead _apth withpen currentpen  t;
+  filldraw arrowhead  reverse _apth  withpen currentpen  t
 enddef;
 
 

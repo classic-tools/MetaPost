@@ -16,7 +16,7 @@ PLTOTF=../texware/pltotf
 # Everything below here should seldom need changing	#
 #########################################################
 
-OBJS= mp0.o mp1.o mp2.o mp3.o mp4.o mp5.o mp6.o mp7.o mp8.o mp9.o
+OBJS= mp0.o mp1.o mp2.o mp3.o mp4.o mp5.o mp6.o mp7.o mp8.o mp9.o mp10.o
 IOBJS=mpext.o mpmath.o pathexp.o inimp.o $(OBJS)
 VOBJS=mpext.o mpmath.o pathexp.o imp.o $(OBJS)
 
@@ -165,7 +165,7 @@ clean:
 		rm -f mtrap.* writeo writeo.2 *.mem
 
 veryclean:	clean
-		rm -f mp?.c imp.c tmp.c mpd.h coerce.h mp.pool mp.p \
+		rm -f mp?.c mp1?.c imp.c tmp.c mpd.h coerce.h mp.pool mp.p \
 			fix.c *.log stamp-* orig_mpd.h trap_mpd.h
 		rm -f \#*\# *~ *.bak *.ckp core
 

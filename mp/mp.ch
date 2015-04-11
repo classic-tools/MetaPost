@@ -47,9 +47,9 @@
 % [1.2] banner line
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
-@d banner=='This is MetaPost, Version 0.632' {printed when \MP\ starts}
+@d banner=='This is MetaPost, Version 0.64' {printed when \MP\ starts}
 @y
-@d banner=='This is MetaPost, C Version 0.632' {printed when \MP\ starts}
+@d banner=='This is MetaPost, C Version 0.64' {printed when \MP\ starts}
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,7 +173,7 @@
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [1.22] accept <tab> and <ff> as valid input chars
+% [1.22] Allow any character as input
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 @x
 @^character set dependencies@>
@@ -191,10 +191,8 @@ for i:=@'177 to @'377 do xchr[i]:=' ';
 @d form_feed = @'14 { ASCII form-feed }
 
 @<Set init...@>=
-for i:=0 to @'37 do xchr[i]:=' ';
-for i:=@'177 to @'377 do xchr[i]:=' ';
-xchr[tab]:=chr(tab);
-xchr[form_feed]:=chr(form_feed);
+for i:=0 to @'37 do xchr[i]:=chr(i);
+for i:=@'177 to @'377 do xchr[i]:=chr(i);
 
 @z
 
@@ -267,7 +265,7 @@ end;
 @#
 function b_open_in(var @!f:byte_file):boolean;
   {open a binary file for input}
-begin rewrite(f,name_of_file,'/O'); b_open_in:=rewrite_OK(f);
+begin reset(f,name_of_file,'/O'); b_open_in:=reset_OK(f);
 end;
 @#
 function b_open_out(var @!f:byte_file):boolean;
@@ -378,7 +376,7 @@ else  begin last_nonblank:=first;
   end;
 end;
 @y
-@ The |input_ln| function will be defined in an external C routine.
+The |input_ln| function will be defined in an external C routine.
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
